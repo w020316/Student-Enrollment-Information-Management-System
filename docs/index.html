@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生学籍信息管理系统</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --accent: #f59e0b;
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --warning: #f59e0b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 20px;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 30% 50%, rgba(99,102,241,0.15) 0%, transparent 50%),
+                        radial-gradient(ellipse at 70% 50%, rgba(245,158,11,0.1) 0%, transparent 50%);
+            animation: bgFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes bgFloat {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(1deg); }
+            66% { transform: translate(-20px, 20px) rotate(-1deg); }
+        }
+
+        .hero-content { position: relative; z-index: 1; max-width: 800px; }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: rgba(99,102,241,0.15);
+            border: 1px solid rgba(99,102,241,0.3);
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--primary);
+            margin-bottom: 24px;
+            letter-spacing: 1px;
+        }
+
+        .hero h1 {
+            font-size: clamp(36px, 6vw, 64px);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff 0%, #c7d2fe 50%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: var(--text-muted);
+            margin-bottom: 36px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+        .btn-github {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: var(--primary);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-github:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(99,102,241,0.3); }
+
+        .btn-demo {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: transparent;
+            color: var(--text);
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 1px solid var(--border);
+            cursor: pointer;
+        }
+        .btn-demo:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
+
+        .section {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 80px 20px;
+        }
+
+        .section-title {
+            font-size: 32px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 16px;
+            margin-bottom: 48px;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .tech-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            transition: all 0.3s;
+        }
+        .tech-card:hover { border-color: var(--primary); transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.3); }
+
+        .tech-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 16px;
+        }
+
+        .tech-card h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+        .tech-card p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+
+        .arch-diagram {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            margin-top: 40px;
+            overflow-x: auto;
+        }
+
+        .arch-diagram pre {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--text);
+            line-height: 1.8;
+            white-space: pre;
+        }
+
+        .arch-diagram .hl-purple { color: #a78bfa; }
+        .arch-diagram .hl-blue { color: #60a5fa; }
+        .arch-diagram .hl-green { color: #4ade80; }
+        .arch-diagram .hl-yellow { color: #fbbf24; }
+        .arch-diagram .hl-red { color: #f87171; }
+        .arch-diagram .hl-cyan { color: #22d3ee; }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            transition: all 0.3s;
+        }
+        .feature-card:hover { border-color: var(--accent); transform: translateY(-4px); }
+
+        .feature-card .num {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            text-align: center;
+            background: rgba(245,158,11,0.15);
+            color: var(--accent);
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .feature-card h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+        .feature-card p { font-size: 14px; color: var(--text-muted); }
+
+        .dao-section { margin-top: 40px; }
+
+        .dao-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+
+        .dao-tab {
+            padding: 10px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .dao-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .dao-tab:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
+
+        .dao-content { display: none; }
+        .dao-content.active { display: block; }
+
+        .dao-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+        }
+
+        .dao-card h3 { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
+        .dao-card p { font-size: 14px; color: var(--text-muted); margin-bottom: 16px; }
+
+        .code-block {
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: #e6edf3;
+            line-height: 1.7;
+        }
+
+        .code-block .comment { color: #8b949e; }
+        .code-block .keyword { color: #ff7b72; }
+        .code-block .string { color: #a5d6ff; }
+        .code-block .type { color: #79c0ff; }
+
+        .db-tables {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-top: 24px;
+        }
+
+        .db-table {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .db-table-header {
+            padding: 16px 20px;
+            background: rgba(99,102,241,0.1);
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .db-table table { width: 100%; border-collapse: collapse; }
+        .db-table th {
+            text-align: left;
+            padding: 10px 20px;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+        }
+        .db-table td {
+            padding: 10px 20px;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(51,65,85,0.5);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .footer a { color: var(--primary); text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 32px; }
+            .section { padding: 40px 16px; }
+            .tech-grid, .feature-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-badge">MVC + JDBC + Reflection + Annotation + Socket</div>
+        <h1>学生学籍信息管理系统</h1>
+        <p>基于 MVC 分层架构，综合运用 Java Web、JDBC、反射、自定义注解、Socket 网络编程等核心技术，支持四种数据持久化方式自由切换</p>
+        <div class="hero-actions">
+            <a href="https://github.com/w020316/Student-Enrollment-Information-Management-System" class="btn-github" target="_blank">
+                <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+                查看源码
+            </a>
+            <a href="../demo.html" class="btn-demo">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                在线演示
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="section-title">核心技术栈</div>
+    <div class="section-subtitle">综合运用 8 大 Java 核心技术，构建完整的企业级 Web 应用</div>
+    <div class="tech-grid">
+        <div class="tech-card">
+            <div class="tech-icon" style="background:rgba(99,102,241,0.15);color:#818cf8;">🏗</div>
+            <h3>MVC 架构</h3>
+            <p>JSP + Servlet + Service + DAO 四层分离，职责清晰，易于维护和扩展</p>
+        </div>
+        <div class="tech-card">
+            <div class="tech-icon" style="background:rgba(34,197,94,0.15);color:#4ade80;">🗄</div>
+            <h3>JDBC 数据库编程</h3>
+            <p>Connection + PreparedStatement + ResultSet，实现 MySQL 数据的增删改查与分页</p>
+        </div>
+        <div class="tech-card">
+            <div class="tech-icon" style="background:rgba(245,158,11,0.15);color:#fbbf24;">🔍</div>
+            <h3>Java 反射机制</h3>
+            <p>DBReflectUtil 动态生成 SQL，替代硬编码，实现通用数据操作</p>
+        </div>
+        <div class="tech-card">
+            <div class="tech-icon" style="background:rgba(239,68,68,0.15);color:#f87171;">🏷</div>
+            <h3>自定义注解</h3>
+            <p>@Entity + @ID + @Column 注解驱动，实现实体-表映射与通用页面展示</p>
+        </div>
+        <div class="tech-card">
+            <div class="tech-icon" style="background:rgba(59,130,246,0.15);color:#60a5fa;">🌐</div>
+            <h3>Socket 网络编程</h3>
+            <p>ServerSocket + Socket + JSON，实现跨进程远程数据操作</p>
+        </div>
+        <div class="tech-card">
+            <div class="tech-icon" style="background:rgba(168,85,247,0.15);color:#c084fc;">⚡</div>
+            <h3>多线程</h3>
+            <p>服务端为每个客户端连接创建独立线程，支持并发请求处理</p>
+        </div>
+        <div class="tech-card">
+            <div class="tech-icon" style="background:rgba(34,211,238,0.15);color:#22d3ee;">🏭</div>
+            <h3>设计模式</h3>
+            <p>单例模式（ServiceFactory）+ 工厂模式（DaoFactory），实现解耦与动态切换</p>
+        </div>
+        <div class="tech-card">
+            <div class="tech-icon" style="background:rgba(251,146,60,0.15);color:#fb923c;">🛡</div>
+            <h3>Filter 过滤器</h3>
+            <p>LoginFilter 拦截未登录请求，实现登录权限控制与安全防护</p>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="section-title">系统架构</div>
+    <div class="section-subtitle">基于 MVC 分层架构，支持四种持久化方式自由切换</div>
+    <div class="arch-diagram">
+<pre>
+<span class="hl-cyan">┌─────────────────────────────────────────────────────────────────┐</span>
+<span class="hl-cyan">│</span>                        <span class="hl-purple">View 视图层 (JSP)</span>                        <span class="hl-cyan">│</span>
+<span class="hl-cyan">│</span>  loginForm.jsp · StudentList.jsp · StudentAdd.jsp · GenericList.jsp  <span class="hl-cyan">│</span>
+<span class="hl-cyan">├─────────────────────────────────────────────────────────────────┤</span>
+<span class="hl-cyan">│</span>                    <span class="hl-blue">Controller 控制层 (Servlet)</span>                  <span class="hl-cyan">│</span>
+<span class="hl-cyan">│</span>  LoginServlet · StudentListServlet · StudentAddServlet · GenericListServlet  <span class="hl-cyan">│</span>
+<span class="hl-cyan">├─────────────────────────────────────────────────────────────────┤</span>
+<span class="hl-cyan">│</span>                     <span class="hl-green">Service 业务层</span>                         <span class="hl-cyan">│</span>
+<span class="hl-cyan">│</span>         StudentServiceImpl · TeacherServiceImpl               <span class="hl-cyan">│</span>
+<span class="hl-cyan">├─────────────────────────────────────────────────────────────────┤</span>
+<span class="hl-cyan">│</span>                      <span class="hl-yellow">Factory 工厂层</span>                          <span class="hl-cyan">│</span>
+<span class="hl-cyan">│</span>    DaoFactory (单例+工厂) · ServiceFactory (单例)              <span class="hl-cyan">│</span>
+<span class="hl-cyan">├──────────┬──────────┬──────────────┬────────────────────────────┤</span>
+<span class="hl-cyan">│</span> <span class="hl-red">MemoryDao</span> <span class="hl-cyan">│</span>  <span class="hl-red">DBDao</span>    <span class="hl-cyan">│</span> <span class="hl-red">DBReflectDao</span>  <span class="hl-cyan">│</span>      <span class="hl-red">RemoteDao</span>            <span class="hl-cyan">│</span>
+<span class="hl-cyan">│</span> 内存存储   <span class="hl-cyan">│</span> 数据库存储 <span class="hl-cyan">│</span> 反射动态SQL   <span class="hl-cyan">│</span> Socket+JSON远程调用     <span class="hl-cyan">│</span>
+<span class="hl-cyan">└──────────┴──────────┴──────────────┴────────────────────────────┘</span>
+</pre>
+    </div>
+</section>
+
+<section class="section">
+    <div class="section-title">功能特性</div>
+    <div class="section-subtitle">完整的学生与教师信息管理，涵盖增删改查、分页、权限控制</div>
+    <div class="feature-grid">
+        <div class="feature-card">
+            <div class="num">01</div>
+            <h3>用户登录与拦截</h3>
+            <p>固定账号密码登录验证，LoginFilter 过滤器拦截未登录请求，Session 管理用户状态，支持退出登录</p>
+        </div>
+        <div class="feature-card">
+            <div class="num">02</div>
+            <h3>学生信息 CRUD</h3>
+            <p>学生学籍信息的增删改查，支持列表展示、新增表单、编辑回显、详情查看、删除确认</p>
+        </div>
+        <div class="feature-card">
+            <div class="num">03</div>
+            <h3>教师信息 CRUD</h3>
+            <p>教师信息的增删改查，包含薪资字段，功能与学生模块完全一致</p>
+        </div>
+        <div class="feature-card">
+            <div class="num">04</div>
+            <h3>分页展示</h3>
+            <p>首页、上一页、页码跳转、下一页、末页，支持自定义每页条数，显示总记录数</p>
+        </div>
+        <div class="feature-card">
+            <div class="num">05</div>
+            <h3>注解驱动通用展示</h3>
+            <p>通过 @Entity/@Column 注解自动生成表头和数据列，一个 JSP 页面适配所有实体</p>
+        </div>
+        <div class="feature-card">
+            <div class="num">06</div>
+            <h3>四种 DAO 模式切换</h3>
+            <p>修改 web.xml 配置即可在 memory/db/dbReflect/remote 四种持久化方式间无缝切换</p>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="section-title">四种持久化方式</div>
+    <div class="section-subtitle">通过 web.xml 配置 daoType 参数，自由切换数据持久化方式</div>
+    <div class="dao-section">
+        <div class="dao-tabs">
+            <div class="dao-tab active" onclick="switchDaoTab(0)">💾 内存存储</div>
+            <div class="dao-tab" onclick="switchDaoTab(1)">🗄 数据库存储</div>
+            <div class="dao-tab" onclick="switchDaoTab(2)">🔍 反射动态SQL</div>
+            <div class="dao-tab" onclick="switchDaoTab(3)">🌐 远程网络调用</div>
+        </div>
+
+        <div class="dao-content active" id="dao0">
+            <div class="dao-card">
+                <h3>MemoryDao — 内存存储</h3>
+                <p>使用静态 List 集合存储数据，AtomicInteger 生成自增ID。适合快速测试和功能验证，无需数据库。</p>
+                <div class="code-block"><pre><span class="comment">// StudentMemoryDao 核心实现</span>
+<span class="keyword">private static final</span> <span class="type">List</span>&lt;<span class="type">Student</span>&gt; data = <span class="keyword">new</span> <span class="type">ArrayList</span>&lt;&gt;();
+<span class="keyword">private static final</span> <span class="type">AtomicInteger</span> idGenerator = <span class="keyword">new</span> <span class="type">AtomicInteger</span>(1);
+
+<span class="keyword">public</span> <span class="type">List</span>&lt;<span class="type">Student</span>&gt; findByPage(<span class="keyword">int</span> page, <span class="keyword">int</span> size) {
+    <span class="keyword">int</span> start = (page - 1) * size;
+    <span class="keyword">int</span> end = Math.min(start + size, data.size());
+    <span class="keyword">return new</span> <span class="type">ArrayList</span>&lt;&gt;(data.subList(start, end));
+}</pre></div>
+            </div>
+        </div>
+
+        <div class="dao-content" id="dao1">
+            <div class="dao-card">
+                <h3>DBDao — 数据库存储</h3>
+                <p>基于 JDBC 硬编码 SQL 语句，使用 PreparedStatement 防止 SQL 注入，操作 MySQL 数据库。</p>
+                <div class="code-block"><pre><span class="comment">// StudentDBDao 分页查询</span>
+<span class="keyword">public</span> <span class="type">List</span>&lt;<span class="type">Student</span>&gt; findByPage(<span class="keyword">int</span> page, <span class="keyword">int</span> size) {
+    <span class="type">String</span> sql = <span class="string">"SELECT * FROM student LIMIT ? OFFSET ?"</span>;
+    <span class="comment">// ... JDBC 操作 ...</span>
+    pstmt.setInt(1, size);
+    pstmt.setInt(2, (page - 1) * size);
+    rs = pstmt.executeQuery();
+    <span class="keyword">while</span> (rs.next()) { list.add(mapRow(rs)); }
+}</pre></div>
+            </div>
+        </div>
+
+        <div class="dao-content" id="dao2">
+            <div class="dao-card">
+                <h3>DBReflectDao — 反射动态 SQL</h3>
+                <p>通过 DBReflectUtil 读取实体类的 @Entity/@ID/@Column 注解，动态生成 INSERT/UPDATE/DELETE/SELECT SQL，替代硬编码，代码通用性强。</p>
+                <div class="code-block"><pre><span class="comment">// DBReflectUtil 动态生成插入SQL</span>
+<span class="keyword">public static</span> <span class="type">String</span> generateInsertSQL(<span class="type">Object</span> obj) {
+    <span class="type">Class</span>&lt;?&gt; clazz = obj.getClass();
+    <span class="type">Entity</span> entity = clazz.getAnnotation(<span class="type">Entity</span>.class);
+    <span class="type">String</span> tableName = entity.value();
+    <span class="comment">// 遍历字段，读取 @Column 注解信息</span>
+    <span class="keyword">for</span> (<span class="type">Field</span> field : clazz.getDeclaredFields()) {
+        <span class="keyword">if</span> (field.isAnnotationPresent(<span class="type">Column</span>.class)) {
+            <span class="type">Column</span> col = field.getAnnotation(<span class="type">Column</span>.class);
+            columns.add(col.value());
+        }
+    }
+    <span class="comment">// 拼接 INSERT INTO tableName (cols) VALUES (?)</span>
+}</pre></div>
+            </div>
+        </div>
+
+        <div class="dao-content" id="dao3">
+            <div class="dao-card">
+                <h3>RemoteDao — 远程网络调用</h3>
+                <p>客户端通过 Socket 连接服务端（8888端口），将操作指令和参数封装为 JSON 发送，服务端处理后返回 JSON 响应，实现跨进程数据操作。</p>
+                <div class="code-block"><pre><span class="comment">// StudentRemoteDao 远程调用</span>
+<span class="keyword">private</span> <span class="type">JSONObject</span> sendRequest(<span class="type">JSONObject</span> request) {
+    <span class="type">Socket</span> socket = <span class="keyword">new</span> <span class="type">Socket</span>(host, port);
+    <span class="type">PrintWriter</span> writer = <span class="keyword">new</span> <span class="type">PrintWriter</span>(socket.getOutputStream());
+    writer.println(request.toString());  <span class="comment">// 发送JSON请求</span>
+
+    <span class="type">BufferedReader</span> reader = <span class="keyword">new</span> <span class="type">BufferedReader</span>(
+        <span class="keyword">new</span> <span class="type">InputStreamReader</span>(socket.getInputStream()));
+    <span class="type">String</span> line = reader.readLine();    <span class="comment">// 读取JSON响应</span>
+    <span class="keyword">return</span> <span class="type">JSONObject</span>.fromObject(line);
+}</pre></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="section-title">数据库设计</div>
+    <div class="section-subtitle">MySQL 数据库 stu_manage，包含学生表和教师表</div>
+    <div class="db-tables">
+        <div class="db-table">
+            <div class="db-table-header">📋 student（学生表）</div>
+            <table>
+                <thead><tr><th>字段</th><th>类型</th><th>约束</th><th>说明</th></tr></thead>
+                <tbody>
+                    <tr><td>id</td><td>INT</td><td>PK, AUTO_INCREMENT</td><td>编号</td></tr>
+                    <tr><td>name</td><td>VARCHAR(10)</td><td>NOT NULL</td><td>姓名</td></tr>
+                    <tr><td>age</td><td>INT</td><td></td><td>年龄</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="db-table">
+            <div class="db-table-header">📋 teacher（教师表）</div>
+            <table>
+                <thead><tr><th>字段</th><th>类型</th><th>约束</th><th>说明</th></tr></thead>
+                <tbody>
+                    <tr><td>id</td><td>INT</td><td>PK, AUTO_INCREMENT</td><td>编号</td></tr>
+                    <tr><td>name</td><td>VARCHAR(10)</td><td>NOT NULL</td><td>姓名</td></tr>
+                    <tr><td>age</td><td>INT</td><td></td><td>年龄</td></tr>
+                    <tr><td>salary</td><td>DOUBLE</td><td></td><td>薪资</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="section-title">快速开始</div>
+    <div class="section-subtitle">三步运行项目</div>
+    <div class="arch-diagram">
+<pre>
+<span class="hl-yellow">步骤 1：初始化数据库</span>
+  执行 sql/init.sql 创建 stu_manage 数据库及 student、teacher 表
+
+<span class="hl-yellow">步骤 2：配置 DAO 模式</span>
+  修改 web.xml 中 daoType 参数：
+    memory     → 内存存储（默认，无需数据库）
+    db         → MySQL 数据库
+    dbReflect  → 反射动态 SQL
+    remote     → 远程 Socket 调用（需先启动 Server）
+
+<span class="hl-yellow">步骤 3：部署到 Tomcat</span>
+  mvn clean package -DskipTests
+  将 target/StudentManage.war 放入 Tomcat webapps 目录
+  访问 http://localhost:8080/StudentManage
+  登录账号：xcy / ddd
+
+<span class="hl-green">远程模式额外步骤：</span>
+  先运行 com.stu.server.Server 启动服务端（监听 8888 端口）
+  再将 daoType 改为 remote 并重启 Tomcat</pre>
+    </div>
+</section>
+
+<footer class="footer">
+    <p>学生学籍信息管理系统 · Java高级与算法编程综合实验 · <a href="https://github.com/w020316/Student-Enrollment-Information-Management-System">GitHub</a></p>
+</footer>
+
+<script>
+function switchDaoTab(index) {
+    document.querySelectorAll('.dao-tab').forEach(function(t, i) {
+        t.classList.toggle('active', i === index);
+    });
+    document.querySelectorAll('.dao-content').forEach(function(c, i) {
+        c.classList.toggle('active', i === index);
+    });
+}
+</script>
+</body>
+</html>
