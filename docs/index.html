@@ -828,6 +828,7 @@
                 </select>
             </div>
             <a href="#" class="topbar-nav topbar-logout" onclick="doLogout()">退出</a>
+            <a href="#" class="topbar-nav topbar-logout" onclick="resetData()" style="margin-left:0">重置</a>
         </div>
     </div>
 
@@ -867,6 +868,7 @@
                             <input type="text" id="studentSearch" placeholder="搜索学生..." oninput="onStudentSearch()">
                         </div>
                         <button class="btn btn-gold" onclick="showView('addStudent')">+ 新增学生</button>
+                        <button class="btn btn-outline" onclick="exportCSV('student')">导出CSV</button>
                     </div>
                 </div>
                 <table class="data-table">
@@ -891,6 +893,7 @@
                             <input type="text" id="teacherSearch" placeholder="搜索教师..." oninput="onTeacherSearch()">
                         </div>
                         <button class="btn btn-gold" onclick="showView('addTeacher')">+ 新增教师</button>
+                        <button class="btn btn-outline" onclick="exportCSV('teacher')">导出CSV</button>
                     </div>
                 </div>
                 <table class="data-table">
@@ -1016,6 +1019,24 @@
             </div>
         </div>
 
+        <!-- VIEW TEACHER -->
+        <div id="viewTeacherView" class="view-section" style="display:none">
+            <div class="detail-view">
+                <div class="content-card">
+                    <div class="detail-title">教师详情</div>
+                    <div class="detail-body">
+                        <div class="detail-row"><div class="detail-label">编号</div><div class="detail-value" id="viewTId"></div></div>
+                        <div class="detail-row"><div class="detail-label">姓名</div><div class="detail-value" id="viewTName"></div></div>
+                        <div class="detail-row"><div class="detail-label">年龄</div><div class="detail-value" id="viewTAge"></div></div>
+                        <div class="detail-row"><div class="detail-label">薪资</div><div class="detail-value" id="viewTSalary"></div></div>
+                    </div>
+                    <div class="detail-actions">
+                        <button class="btn btn-outline" onclick="showView('teacherList')">返回列表</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="main-footer">
             学生学籍信息管理系统 · MVC + JDBC + 反射 + 注解 + Socket · <a href="https://github.com/w020316/Student-Enrollment-Information-Management-System" target="_blank">GitHub</a>
         </div>
@@ -1023,7 +1044,7 @@
 </div>
 
 <script>
-var students = [
+var DEFAULT_STUDENTS = [
     {id:1, name:'张三', age:20}, {id:2, name:'李四', age:21},
     {id:3, name:'王五', age:22}, {id:4, name:'赵六', age:20},
     {id:5, name:'钱七', age:23}, {id:6, name:'孙八', age:19},
@@ -1031,16 +1052,54 @@ var students = [
     {id:9, name:'郑一', age:24}, {id:10, name:'冯二', age:20},
     {id:11, name:'陈三', age:22}, {id:12, name:'褚四', age:21}
 ];
-var teachers = [
+var DEFAULT_TEACHERS = [
     {id:1, name:'刘老师', age:35, salary:8000}, {id:2, name:'陈老师', age:40, salary:9500},
     {id:3, name:'杨老师', age:38, salary:8800}, {id:4, name:'黄老师', age:45, salary:10200},
     {id:5, name:'林老师', age:33, salary:7500}, {id:6, name:'何老师', age:42, salary:9800},
     {id:7, name:'罗老师', age:36, salary:8200}
 ];
-var nextSId = 13, nextTId = 8;
+
+function loadData() {
+    try {
+        var s = localStorage.getItem('stu_students');
+        var t = localStorage.getItem('stu_teachers');
+        var si = localStorage.getItem('stu_nextSId');
+        var ti = localStorage.getItem('stu_nextTId');
+        if (s) return { students: JSON.parse(s), teachers: JSON.parse(t || '[]'), nextSId: parseInt(si) || 13, nextTId: parseInt(ti) || 8 };
+    } catch(e) {}
+    return { students: DEFAULT_STUDENTS.slice(), teachers: DEFAULT_TEACHERS.slice(), nextSId: 13, nextTId: 8 };
+}
+
+function saveData() {
+    try {
+        localStorage.setItem('stu_students', JSON.stringify(students));
+        localStorage.setItem('stu_teachers', JSON.stringify(teachers));
+        localStorage.setItem('stu_nextSId', String(nextSId));
+        localStorage.setItem('stu_nextTId', String(nextTId));
+    } catch(e) {}
+}
+
+function resetData() {
+    showConfirm('确定重置所有数据为初始状态吗？此操作不可撤销。', function(){
+        students = DEFAULT_STUDENTS.slice();
+        teachers = DEFAULT_TEACHERS.slice();
+        nextSId = 13;
+        nextTId = 8;
+        saveData();
+        showToast('数据已重置为初始状态', 'success');
+        showView('studentList');
+    });
+}
+
+var loaded = loadData();
+var students = loaded.students;
+var teachers = loaded.teachers;
+var nextSId = loaded.nextSId;
+var nextTId = loaded.nextTId;
 var sPage = 1, tPage = 1, gPage = 1, gEntity = 'student';
 var PAGE_SIZE = 5;
 var pendingAction = null;
+var currentView = 'studentList';
 var studentSearchKey = '', teacherSearchKey = '';
 
 function showToast(msg, type) {
@@ -1090,7 +1149,7 @@ function updateStats() {
 }
 
 function showView(name) {
-    var views = ['studentListView','teacherListView','genericListView','addStudentView','editStudentView','viewStudentView','addTeacherView','editTeacherView'];
+    var views = ['studentListView','teacherListView','genericListView','addStudentView','editStudentView','viewStudentView','addTeacherView','editTeacherView','viewTeacherView'];
     views.forEach(function(id){ document.getElementById(id).style.display = 'none'; });
     document.querySelectorAll('.topbar-nav a').forEach(function(a){ a.classList.remove('active'); });
 
@@ -1102,7 +1161,8 @@ function showView(name) {
         editStudent: 'editStudentView',
         viewStudent: 'viewStudentView',
         addTeacher: 'addTeacherView',
-        editTeacher: 'editTeacherView'
+        editTeacher: 'editTeacherView',
+        viewTeacher: 'viewTeacherView'
     };
     var navMap = {
         studentList: 'navStudent',
@@ -1110,6 +1170,7 @@ function showView(name) {
         genericList: 'navGeneric'
     };
 
+    currentView = name;
     document.getElementById(viewMap[name]).style.display = 'block';
     if (navMap[name]) document.getElementById(navMap[name]).classList.add('active');
 
@@ -1182,6 +1243,7 @@ function renderTeacherTable() {
         tbody.innerHTML = pageData.map(function(t){
             return '<tr><td class="td-id">#' + t.id + '</td><td class="td-name">' + t.name + '</td><td class="td-age">' + t.age + '</td><td class="td-salary">¥' + t.salary.toLocaleString() + '</td>'
                 + '<td><div class="td-actions">'
+                + '<button class="btn btn-sm btn-view" onclick="viewTeacher('+t.id+')">查看</button>'
                 + '<button class="btn btn-sm btn-edit" onclick="editTeacher('+t.id+')">编辑</button>'
                 + '<button class="btn btn-sm btn-del" onclick="deleteTeacher('+t.id+')">删除</button>'
                 + '</div></td></tr>';
@@ -1269,6 +1331,7 @@ function saveStudent() {
     if (!name) { showToast('请输入姓名', 'error'); return; }
     if (isNaN(age) || age < 1) { showToast('请输入有效年龄', 'error'); return; }
     students.push({id: nextSId++, name: name, age: age});
+    saveData();
     showToast('新增学生成功', 'success');
     document.getElementById('addSName').value = '';
     document.getElementById('addSAge').value = '';
@@ -1291,6 +1354,7 @@ function updateStudent() {
     if (!name) { showToast('请输入姓名', 'error'); return; }
     var s = students.find(function(x){ return x.id === id; });
     if (s) { s.name = name; s.age = age; }
+    saveData();
     showToast('修改学生成功', 'success');
     showView('studentList');
 }
@@ -1308,6 +1372,7 @@ function deleteStudent(id) {
     var s = students.find(function(x){ return x.id === id; });
     showConfirm('确定删除学生「' + (s ? s.name : '') + '」吗？此操作不可撤销。', function(){
         students = students.filter(function(x){ return x.id !== id; });
+        saveData();
         showToast('删除学生成功', 'success');
         renderStudentTable();
         updateStats();
@@ -1322,6 +1387,7 @@ function saveTeacher() {
     if (isNaN(age) || age < 1) { showToast('请输入有效年龄', 'error'); return; }
     if (isNaN(salary) || salary < 0) { showToast('请输入有效薪资', 'error'); return; }
     teachers.push({id: nextTId++, name: name, age: age, salary: salary});
+    saveData();
     showToast('新增教师成功', 'success');
     document.getElementById('addTName').value = '';
     document.getElementById('addTAge').value = '';
@@ -1347,6 +1413,7 @@ function updateTeacher() {
     if (!name) { showToast('请输入姓名', 'error'); return; }
     var t = teachers.find(function(x){ return x.id === id; });
     if (t) { t.name = name; t.age = age; t.salary = salary; }
+    saveData();
     showToast('修改教师成功', 'success');
     showView('teacherList');
 }
@@ -1355,6 +1422,7 @@ function deleteTeacher(id) {
     var t = teachers.find(function(x){ return x.id === id; });
     showConfirm('确定删除教师「' + (t ? t.name : '') + '」吗？此操作不可撤销。', function(){
         teachers = teachers.filter(function(x){ return x.id !== id; });
+        saveData();
         showToast('删除教师成功', 'success');
         renderTeacherTable();
         updateStats();
@@ -1363,6 +1431,51 @@ function deleteTeacher(id) {
 
 document.getElementById('loginPass').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
 document.getElementById('loginUser').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
+
+function viewTeacher(id) {
+    var t = teachers.find(function(x){ return x.id === id; });
+    if (!t) return;
+    showView('viewTeacher');
+    document.getElementById('viewTId').textContent = '#' + t.id;
+    document.getElementById('viewTName').textContent = t.name;
+    document.getElementById('viewTAge').textContent = t.age;
+    document.getElementById('viewTSalary').textContent = '¥' + t.salary.toLocaleString();
+}
+
+function exportCSV(type) {
+    var data = type === 'student' ? students : teachers;
+    var headers = type === 'student' ? ['编号','姓名','年龄'] : ['编号','姓名','年龄','薪资'];
+    var fields = type === 'student' ? ['id','name','age'] : ['id','name','age','salary'];
+    var BOM = '\uFEFF';
+    var csv = BOM + headers.join(',') + '\n';
+    data.forEach(function(item){
+        csv += fields.map(function(f){ return item[f]; }).join(',') + '\n';
+    });
+    var blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = (type === 'student' ? '学生信息' : '教师信息') + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('导出成功', 'success');
+}
+
+document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') {
+        if (document.getElementById('confirmModal').classList.contains('show')) {
+            closeModal();
+        } else if (currentView && currentView !== 'studentList' && currentView !== 'teacherList' && currentView !== 'genericList') {
+            var backMap = {
+                addStudent: 'studentList', editStudent: 'studentList', viewStudent: 'studentList',
+                addTeacher: 'teacherList', editTeacher: 'teacherList', viewTeacher: 'teacherList'
+            };
+            if (backMap[currentView]) showView(backMap[currentView]);
+        }
+    }
+});
 </script>
 </body>
 </html>
