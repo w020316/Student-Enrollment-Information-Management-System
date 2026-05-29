@@ -1,0 +1,319 @@
+4.2. 核心功能实现
+
+4.2.1 用户注册与登录模块
+
+（1）实现逻辑:
+
+用户访问系统时，LoginFilter拦截所有请求，判断Session中是否存在"user"属性。若未登录，自动重定向到loginForm.jsp登录页面。用户提交登录表单后，LoginServlet的doPost方法接收用户名和密码参数，与固定账号（用户名：xcy，密码：ddd）进行比对。登录成功则将用户名存入Session，重定向到学生列表页；登录失败则将错误信息存入request域，转发回登录页并提示"用户名或密码错误"。退出登录时，LogoutServlet销毁Session，重定向到登录页。
+
+请求流转过程：
+用户访问 → LoginFilter拦截 → 判断Session → 未登录跳转loginForm.jsp → 提交表单 → LoginServlet验证 → 成功存Session跳转/student/list → 失败转发回登录页
+
+（2）关键代码：
+
+LoginServlet.java：
+@WebServlet("/login")
+public class LoginServlet extends HttpServlet {
+    private static final String USERNAME = "xcy";
+    private static final String PASSWORD = "ddd";
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setCharacterEncoding("UTF-8");
+        String username = req.getParameter("username");
+        String password = req.getParameter("password");
+
+        if (USERNAME.equals(username) && PASSWORD.equals(password)) {
+            HttpSession session = req.getSession();
+            session.setAttribute("user", username);
+            resp.sendRedirect(req.getContextPath() + "/student/list");
+        } else {
+            req.setAttribute("error", "用户名或密码错误");
+            req.getRequestDispatcher("/loginForm.jsp").forward(req, resp);
+        }
+    }
+}
+
+LoginFilter.java：
+@WebFilter("/*")
+public class LoginFilter implements Filter {
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        HttpServletRequest req = (HttpServletRequest) request;
+        HttpServletResponse resp = (HttpServletResponse) response;
+        String uri = req.getRequestURI();
+        String contextPath = req.getContextPath();
+
+        // 放行登录页、登录Servlet和静态资源
+        if (uri.equals(contextPath + "/loginForm.jsp")
+                || uri.equals(contextPath + "/login")
+                || uri.startsWith(contextPath + "/css/")
+                || uri.endsWith(".css") || uri.endsWith(".js")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
+        // 检查Session中是否有用户信息
+        HttpSession session = req.getSession(false);
+        if (session != null && session.getAttribute("user") != null) {
+            chain.doFilter(request, response);
+        } else {
+            resp.sendRedirect(contextPath + "/loginForm.jsp");
+        }
+    }
+}
+
+
+4.2.2 学生查询列表（分页）
+
+（1）实现逻辑:
+
+用户登录后进入学生列表页面。StudentListServlet接收page和size参数（默认page=1, size=5），通过ServiceFactory获取StudentService实例，调用findByPage(page, size)方法获取当前页数据，调用count()方法获取总记录数，计算总页数totalPages = ceil(totalCount / size)。将分页数据（students列表、currentPage、pageSize、totalCount、totalPages）存入request域，转发到StudentList.jsp进行展示。JSP页面通过遍历students集合渲染表格行，底部渲染分页导航栏（首页、上一页、页码、下一页、末页）。
+
+DAO层分页实现：内存版使用List.subList(start, end)截取；数据库版使用SQL的LIMIT ? OFFSET ?语句。
+
+（2）关键代码：
+
+StudentListServlet.java：
+@WebServlet("/student/list")
+public class StudentListServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String pageStr = req.getParameter("page");
+        String sizeStr = req.getParameter("size");
+        int page = 1;
+        int size = 5;
+        try { page = Integer.parseInt(pageStr); } catch (Exception ignored) {}
+        try { size = Integer.parseInt(sizeStr); } catch (Exception ignored) {}
+        if (page < 1) page = 1;
+
+        StudentService service = ServiceFactory.getInstance().getStudentService();
+        List<Student> students = service.findByPage(page, size);
+        int totalCount = service.count();
+        int totalPages = (int) Math.ceil((double) totalCount / size);
+        if (totalPages < 1) totalPages = 1;
+
+        req.setAttribute("students", students);
+        req.setAttribute("currentPage", page);
+        req.setAttribute("pageSize", size);
+        req.setAttribute("totalCount", totalCount);
+        req.setAttribute("totalPages", totalPages);
+
+        req.getRequestDispatcher("/student/StudentList.jsp").forward(req, resp);
+    }
+}
+
+StudentDBDao.java分页查询：
+@Override
+public List<Student> findByPage(int page, int size) {
+    List<Student> list = new ArrayList<>();
+    String sql = "SELECT * FROM student LIMIT ? OFFSET ?";
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+    ResultSet rs = null;
+    try {
+        conn = DBConnection.getConnection();
+        pstmt = conn.prepareStatement(sql);
+        pstmt.setInt(1, size);
+        pstmt.setInt(2, (page - 1) * size);
+        rs = pstmt.executeQuery();
+        while (rs.next()) {
+            list.add(mapRow(rs));
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        DBConnection.close(conn, pstmt, rs);
+    }
+    return list;
+}
+
+
+4.2.3 新增学生
+
+（1）实现逻辑:
+
+用户在学生列表页点击"新增学生"按钮，浏览器发送GET请求到/student/add，StudentAddServlet的doGet方法将请求转发到StudentAdd.jsp表单页面。用户填写姓名和年龄后提交表单，发送POST请求到/student/add，StudentAddServlet的doPost方法接收表单参数，创建Student对象并设置属性，通过ServiceFactory获取StudentService实例调用insert()方法保存数据，最后重定向到学生列表页。
+
+DAO层插入实现：内存版直接添加到List集合并分配自增ID；数据库版使用INSERT INTO student (name, age) VALUES (?, ?)预编译SQL。
+
+（2）关键代码：
+
+StudentAddServlet.java：
+@WebServlet("/student/add")
+public class StudentAddServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.getRequestDispatcher("/student/StudentAdd.jsp").forward(req, resp);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setCharacterEncoding("UTF-8");
+        String name = req.getParameter("name");
+        String ageStr = req.getParameter("age");
+
+        Student student = new Student();
+        student.setName(name);
+        try { student.setAge(Integer.parseInt(ageStr)); } catch (Exception ignored) {}
+
+        StudentService service = ServiceFactory.getInstance().getStudentService();
+        service.insert(student);
+
+        resp.sendRedirect(req.getContextPath() + "/student/list");
+    }
+}
+
+
+4.2.4 修改学生
+
+（1）实现逻辑:
+
+用户在学生列表页点击"编辑"按钮，浏览器发送GET请求到/student/update?id=X，StudentUpdateServlet的doGet方法根据id参数调用Service的findById()方法查询学生信息，将Student对象存入request域，转发到StudentEdit.jsp编辑页面进行数据回显。用户修改信息后提交表单，发送POST请求到/student/update，StudentUpdateServlet的doPost方法接收id、name、age参数，创建Student对象并调用Service的update()方法更新数据，最后重定向到学生列表页。
+
+（2）关键代码：
+
+StudentUpdateServlet.java：
+@WebServlet("/student/update")
+public class StudentUpdateServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String idStr = req.getParameter("id");
+        int id = Integer.parseInt(idStr);
+
+        StudentService service = ServiceFactory.getInstance().getStudentService();
+        Student student = service.findById(id);
+        req.setAttribute("student", student);
+        req.getRequestDispatcher("/student/StudentEdit.jsp").forward(req, resp);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setCharacterEncoding("UTF-8");
+        String idStr = req.getParameter("id");
+        String name = req.getParameter("name");
+        String ageStr = req.getParameter("age");
+
+        Student student = new Student();
+        student.setId(Integer.parseInt(idStr));
+        student.setName(name);
+        try { student.setAge(Integer.parseInt(ageStr)); } catch (Exception ignored) {}
+
+        StudentService service = ServiceFactory.getInstance().getStudentService();
+        service.update(student);
+
+        resp.sendRedirect(req.getContextPath() + "/student/list");
+    }
+}
+
+
+4.2.5 删除学生
+
+（1）实现逻辑:
+
+用户在学生列表页点击"删除"按钮，前端通过onclick="return confirm('确定删除该学生吗？')"弹出确认对话框。用户确认后，浏览器发送GET请求到/student/delete?id=X，StudentDeleteServlet接收id参数，通过ServiceFactory获取StudentService实例调用delete()方法删除对应记录，最后重定向到学生列表页。
+
+DAO层删除实现：内存版使用List.removeIf()方法按id移除；数据库版使用DELETE FROM student WHERE id = ?预编译SQL。
+
+（2）关键代码：
+
+StudentDeleteServlet.java：
+@WebServlet("/student/delete")
+public class StudentDeleteServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String idStr = req.getParameter("id");
+        int id = Integer.parseInt(idStr);
+
+        StudentService service = ServiceFactory.getInstance().getStudentService();
+        service.delete(id);
+
+        resp.sendRedirect(req.getContextPath() + "/student/list");
+    }
+}
+
+StudentDBDao.java删除方法：
+@Override
+public void delete(Integer id) {
+    String sql = "DELETE FROM student WHERE id = ?";
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+    try {
+        conn = DBConnection.getConnection();
+        pstmt = conn.prepareStatement(sql);
+        pstmt.setInt(1, id);
+        pstmt.executeUpdate();
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        DBConnection.close(conn, pstmt);
+    }
+}
+
+
+4.3. 数据库连接配置
+
+数据库连接通过DBConnection工具类实现，在系统启动时由InitServlet读取web.xml中的上下文参数进行初始化。
+
+DBConnection工具类核心代码：
+public class DBConnection {
+    private static String driver;
+    private static String url;
+    private static String user;
+    private static String password;
+
+    public static void init(String driver, String url, String user, String password) {
+        DBConnection.driver = driver;
+        DBConnection.url = url;
+        DBConnection.user = user;
+        DBConnection.password = password;
+        try {
+            Class.forName(driver);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Connection getConnection() {
+        try {
+            return DriverManager.getConnection(url, user, password);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("获取数据库连接失败", e);
+        }
+    }
+
+    public static void close(Connection conn, Statement stmt, ResultSet rs) {
+        try { if (rs != null) rs.close(); } catch (SQLException e) { e.printStackTrace(); }
+        try { if (stmt != null) stmt.close(); } catch (SQLException e) { e.printStackTrace(); }
+        try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTrace(); }
+    }
+}
+
+web.xml数据库配置参数：
+<context-param>
+    <param-name>daoType</param-name>
+    <param-value>memory</param-value>     <!-- 可选值：memory / db / dbReflect / remote -->
+</context-param>
+<context-param>
+    <param-name>dbDriver</param-name>
+    <param-value>com.mysql.jdbc.Driver</param-value>
+</context-param>
+<context-param>
+    <param-name>dbUrl</param-name>
+    <param-value>jdbc:mysql://localhost:3306/stu_manage?useUnicode=true&amp;characterEncoding=utf8</param-value>
+</context-param>
+<context-param>
+    <param-name>dbUser</param-name>
+    <param-value>root</param-value>
+</context-param>
+<context-param>
+    <param-name>dbPassword</param-name>
+    <param-value>123456</param-value>
+</context-param>
+
+DAO模式切换方式：修改web.xml中daoType参数值即可实现四种持久化方式的自由切换。
+- memory：使用内存版DAO，数据存储在静态List中，适合快速测试
+- db：使用数据库版DAO，通过JDBC硬编码SQL操作MySQL数据库
+- dbReflect：使用反射版DAO，通过DBReflectUtil动态生成SQL，代码通用性强
+- remote：使用远程版DAO，通过Socket+JSON与服务端通信，实现跨进程数据操作

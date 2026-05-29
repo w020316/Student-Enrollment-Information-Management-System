@@ -1,0 +1,14 @@
+package com.stu.dao;
+
+import com.stu.entity.Student;
+import java.util.List;
+
+public interface StudentDao {
+    List<Student> findAll();
+    List<Student> findByPage(int page, int size);
+    Student findById(Integer id);
+    int count();
+    void insert(Student student);
+    void update(Student student);
+    void delete(Integer id);
+}

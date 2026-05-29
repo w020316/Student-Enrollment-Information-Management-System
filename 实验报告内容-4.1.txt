@@ -1,0 +1,123 @@
+4.1. 系统需求分析与设计
+
+4.1.1 功能模块图
+
+系统整体采用MVC分层架构，功能模块划分如下：
+
+┌─────────────────────────────────────────────────────────┐
+│              学生学籍信息管理系统                          │
+├─────────────┬──────────────┬──────────────┬─────────────┤
+│  用户登录模块 │ 学生信息管理模块 │ 教师信息管理模块 │ 通用展示模块  │
+├─────────────┼──────────────┼──────────────┼─────────────┤
+│ · 登录验证   │ · 学生列表(分页) │ · 教师列表(分页) │ · 注解驱动列表│
+│ · 登录拦截   │ · 新增学生     │ · 新增教师     │ · 动态表头生成│
+│ · 退出登录   │ · 修改学生     │ · 修改教师     │             │
+│             │ · 删除学生     │ · 删除教师     │             │
+│             │ · 查看学生详情 │ · 查看教师详情 │             │
+├─────────────┴──────────────┴──────────────┴─────────────┤
+│                    数据持久化层                            │
+├──────────┬──────────┬────────────┬──────────────────────┤
+│ 内存存储   │ 数据库存储  │ 反射动态SQL存储 │ 远程网络调用存储  │
+│(MemoryDao)│ (DBDao)   │(DBReflectDao) │ (RemoteDao)      │
+└──────────┴──────────┴────────────┴──────────────────────┘
+
+4.1.2 数据库设计
+
+数据库名：stu_manage，共包含2张数据表。
+
+（1）学生表（student）
+
+┌──────────┬──────────────┬──────────┬──────────┬──────────┐
+│  字段名    │    数据类型    │   约束    │  是否为空  │   说明    │
+├──────────┼──────────────┼──────────┼──────────┼──────────┤
+│   id      │   INT        │ 主键自增  │  NOT NULL │  学生编号  │
+│   name    │ VARCHAR(10)  │          │  NOT NULL │  学生姓名  │
+│   age     │   INT        │          │  NULL     │  学生年龄  │
+└──────────┴──────────────┴──────────┴──────────┴──────────┘
+
+建表SQL：
+CREATE TABLE student (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(10) NOT NULL,
+    age INT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+（2）教师表（teacher）
+
+┌──────────┬──────────────┬──────────┬──────────┬──────────┐
+│  字段名    │    数据类型    │   约束    │  是否为空  │   说明    │
+├──────────┼──────────────┼──────────┼──────────┼──────────┤
+│   id      │   INT        │ 主键自增  │  NOT NULL │  教师编号  │
+│   name    │ VARCHAR(10)  │          │  NOT NULL │  教师姓名  │
+│   age     │   INT        │          │  NULL     │  教师年龄  │
+│   salary  │   DOUBLE     │          │  NULL     │  教师薪资  │
+└──────────┴──────────────┴──────────┴──────────┴──────────┘
+
+建表SQL：
+CREATE TABLE teacher (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(10) NOT NULL,
+    age INT,
+    salary DOUBLE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+4.1.3 类结构设计
+
+系统按照MVC架构分为以下包结构：
+
+com.stu.annotation（自定义注解层）
+├── @Entity(value)     — 标注实体类，value对应数据库表名
+├── @ID                — 标注主键字段
+└── @Column(value, nullable, maxLength, label) — 标注普通字段
+
+com.stu.entity（实体层）
+├── Student            — 学生实体（id, name, age），添加@Entity/@ID/@Column注解
+├── Teacher            — 教师实体（id, name, age, salary），添加@Entity/@ID/@Column注解
+├── EntityInfo         — 实体注解信息封装类（tableName, className, columns）
+└── ColumnInfo         — 字段注解信息封装类（fieldName, columnName, label, nullable, maxLength, isId）
+
+com.stu.dao（数据访问层）
+├── StudentDao         — 学生DAO接口（findAll, findByPage, findById, count, insert, update, delete）
+├── TeacherDao         — 教师DAO接口
+├── StudentMemoryDao   — 学生内存版DAO（静态List存储，AtomicInteger自增ID）
+├── TeacherMemoryDao   — 教师内存版DAO
+├── StudentDBDao       — 学生数据库版DAO（JDBC硬编码SQL）
+├── TeacherDBDao       — 教师数据库版DAO
+├── StudentDBReflectDao— 学生反射版DAO（调用DBReflectUtil动态生成SQL）
+├── TeacherDBReflectDao— 教师反射版DAO
+├── StudentRemoteDao   — 学生远程版DAO（Socket+JSON通信）
+└── TeacherRemoteDao   — 教师远程版DAO
+
+com.stu.service（业务逻辑层）
+├── StudentService     — 学生Service接口
+├── StudentServiceImpl — 学生Service实现（注入StudentDao，调用DAO方法）
+├── TeacherService     — 教师Service接口
+└── TeacherServiceImpl — 教师Service实现
+
+com.stu.factory（工厂层）
+├── DaoFactory         — DAO工厂（单例模式，根据daoType创建不同DAO实现）
+└── ServiceFactory     — Service工厂（单例模式，创建Service实例）
+
+com.stu.servlet（控制器层）
+├── InitServlet        — 系统初始化Servlet（读取web.xml配置，初始化DBConnection和DaoFactory）
+├── LoginServlet       — 登录验证（固定用户名xcy/密码ddd，Session存用户信息）
+├── LogoutServlet      — 退出登录（销毁Session）
+├── StudentListServlet — 学生列表（分页查询，转发到StudentList.jsp）
+├── StudentAddServlet  — 新增学生（GET转发表单页，POST保存后重定向列表）
+├── StudentUpdateServlet— 修改学生（GET查询回显，POST更新后重定向列表）
+├── StudentDeleteServlet— 删除学生（根据id删除后重定向列表）
+├── StudentViewServlet — 查看学生详情
+├── Teacher*Servlet    — 教师对应Servlet（功能同学生模块）
+└── GenericListServlet — 通用注解驱动列表Servlet（支持任意实体类分页查询）
+
+com.stu.filter（过滤器层）
+└── LoginFilter        — 登录拦截过滤器（拦截/*，放行登录页和静态资源）
+
+com.stu.util（工具层）
+├── DBConnection       — 数据库连接工具（init初始化，getConnection获取连接，close关闭资源）
+├── DBReflectUtil      — 反射动态SQL工具（generateInsertSQL/UpdateSQL/DeleteSQL/SelectSQL/PageSQL/CountSQL）
+└── EntityInfoHelper   — 注解解析工具（getEntityInfo解析类注解，getEntityId获取主键值）
+
+com.stu.server（远程服务端）
+├── Server             — 服务端主类（ServerSocket监听8888端口，多线程处理请求）
+└── RequestHandler     — 请求处理器（Runnable实现，读取JSON请求，调用DBDao，返回JSON响应）

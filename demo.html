@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生学籍信息管理系统 - 演示</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+            background: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 12px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .navbar h1 { font-size: 20px; font-weight: 600; }
+        .navbar .nav-links a {
+            color: #fff; text-decoration: none; margin-left: 20px;
+            font-size: 14px; padding: 6px 14px; border-radius: 4px; transition: background 0.3s;
+        }
+        .navbar .nav-links a:hover, .navbar .nav-links a.active { background: rgba(255,255,255,0.2); }
+
+        .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+
+        .login-container {
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .login-box {
+            background: #fff; border-radius: 12px; padding: 40px; width: 400px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .login-box h2 { text-align: center; margin-bottom: 30px; color: #333; font-size: 24px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 14px; color: #555; font-weight: 500; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 10px 12px; border: 1px solid #d9d9d9; border-radius: 6px;
+            font-size: 14px; transition: border-color 0.3s; outline: none;
+        }
+        .form-group input:focus, .form-group select:focus {
+            border-color: #667eea; box-shadow: 0 0 0 2px rgba(102,126,234,0.2);
+        }
+
+        .btn {
+            display: inline-block; padding: 8px 20px; border: none; border-radius: 6px;
+            font-size: 14px; cursor: pointer; text-decoration: none; transition: all 0.3s; text-align: center;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff; width: 100%; padding: 12px; font-size: 16px;
+        }
+        .btn-primary:hover { opacity: 0.9; box-shadow: 0 4px 12px rgba(102,126,234,0.4); }
+        .btn-success { background-color: #52c41a; color: #fff; }
+        .btn-success:hover { background-color: #45a814; }
+        .btn-warning { background-color: #faad14; color: #fff; }
+        .btn-warning:hover { background-color: #d8960e; }
+        .btn-danger { background-color: #ff4d4f; color: #fff; }
+        .btn-danger:hover { background-color: #d9363e; }
+        .btn-info { background-color: #1890ff; color: #fff; }
+        .btn-info:hover { background-color: #096dd9; }
+        .btn-sm { padding: 4px 12px; font-size: 12px; }
+
+        .error-msg { color: #ff4d4f; text-align: center; margin-bottom: 15px; font-size: 14px; min-height: 20px; }
+
+        .table-container {
+            background: #fff; border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden;
+        }
+        .table-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px 20px; border-bottom: 1px solid #f0f0f0;
+        }
+        .table-header h3 { font-size: 16px; color: #333; }
+
+        table { width: 100%; border-collapse: collapse; }
+        table th {
+            background: #fafafa; padding: 12px 16px; text-align: left;
+            font-size: 14px; color: #555; font-weight: 600; border-bottom: 1px solid #f0f0f0;
+        }
+        table td { padding: 12px 16px; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+        table tr:hover { background: #f5f7fa; }
+
+        .pagination {
+            display: flex; justify-content: center; align-items: center;
+            padding: 16px 0; gap: 6px;
+        }
+        .pagination a, .pagination span {
+            padding: 6px 14px; border: 1px solid #d9d9d9; border-radius: 4px;
+            font-size: 14px; text-decoration: none; color: #333; transition: all 0.3s; cursor: pointer;
+        }
+        .pagination a:hover { border-color: #667eea; color: #667eea; }
+        .pagination .active { background: #667eea; color: #fff; border-color: #667eea; }
+        .pagination .disabled { color: #ccc; cursor: not-allowed; }
+
+        .form-container {
+            background: #fff; border-radius: 8px; padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08); max-width: 500px; margin: 0 auto;
+        }
+        .form-container h3 { margin-bottom: 20px; text-align: center; color: #333; }
+        .form-container .btn-group { text-align: center; margin-top: 24px; }
+        .form-container .btn-group .btn { margin: 0 8px; }
+
+        .view-container {
+            background: #fff; border-radius: 8px; padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08); max-width: 500px; margin: 0 auto;
+        }
+        .view-container h3 { margin-bottom: 20px; text-align: center; color: #333; }
+        .view-container .field-row {
+            display: flex; padding: 10px 0; border-bottom: 1px solid #f0f0f0;
+        }
+        .view-container .field-label { width: 80px; font-weight: 600; color: #555; }
+        .view-container .field-value { flex: 1; color: #333; }
+
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: #fff; border-radius: 8px; padding: 24px; width: 360px;
+            box-shadow: 0 6px 30px rgba(0,0,0,0.2); text-align: center;
+        }
+        .modal p { margin-bottom: 20px; font-size: 16px; }
+        .modal .btn { margin: 0 6px; }
+
+        .toast {
+            display: none; position: fixed; top: 20px; right: 20px; padding: 12px 24px;
+            border-radius: 6px; color: #fff; font-size: 14px; z-index: 2000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .toast.success { background: #52c41a; }
+        .toast.error { background: #ff4d4f; }
+        .toast.show { display: block; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        .page { display: none; }
+        .page.active { display: block; }
+
+        .switch-bar {
+            background: #fff; border-radius: 8px; padding: 12px 20px; margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 12px;
+        }
+        .switch-bar label { font-size: 14px; color: #555; font-weight: 500; }
+        .switch-bar select {
+            padding: 6px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+<div id="confirmModal" class="modal-overlay">
+    <div class="modal">
+        <p id="confirmMsg">确定删除该学生吗？</p>
+        <button class="btn btn-danger" onclick="confirmAction()">确定</button>
+        <button class="btn btn-info" onclick="closeModal()">取消</button>
+    </div>
+</div>
+
+<div id="loginPage" class="page active">
+    <div class="login-container">
+        <div class="login-box">
+            <h2>学生学籍信息管理系统</h2>
+            <div id="loginError" class="error-msg"></div>
+            <div class="form-group">
+                <label>用户名</label>
+                <input type="text" id="loginUser" placeholder="请输入用户名" value="xcy">
+            </div>
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" id="loginPass" placeholder="请输入密码" value="ddd">
+            </div>
+            <button class="btn btn-primary" onclick="doLogin()">登 录</button>
+        </div>
+    </div>
+</div>
+
+<div id="mainPage" class="page">
+    <div class="navbar">
+        <h1>学生学籍信息管理系统</h1>
+        <div class="nav-links">
+            <a href="#" onclick="showStudentList()" class="active" id="navStudent">学生管理</a>
+            <a href="#" onclick="showTeacherList()" id="navTeacher">教师管理</a>
+            <a href="#" onclick="showGenericList('student')" id="navGenericS">通用列表(学生)</a>
+            <a href="#" onclick="showGenericList('teacher')" id="navGenericT">通用列表(教师)</a>
+            <a href="#" onclick="doLogout()">退出登录</a>
+        </div>
+    </div>
+    <div class="container">
+        <div class="switch-bar">
+            <label>DAO模式：</label>
+            <select id="daoType" onchange="switchDaoType()">
+                <option value="memory">内存存储 (memory)</option>
+                <option value="db">数据库存储 (db)</option>
+                <option value="dbReflect">反射动态SQL (dbReflect)</option>
+                <option value="remote">远程网络调用 (remote)</option>
+            </select>
+            <span style="color:#999; font-size:13px;" id="daoTypeHint">当前：内存存储模式</span>
+        </div>
+
+        <div id="studentListView">
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>学生信息列表</h3>
+                    <a href="#" class="btn btn-success" onclick="showAddStudent()">新增学生</a>
+                </div>
+                <table>
+                    <thead><tr><th>编号</th><th>姓名</th><th>年龄</th><th>操作</th></tr></thead>
+                    <tbody id="studentTableBody"></tbody>
+                </table>
+                <div class="pagination" id="studentPagination"></div>
+            </div>
+        </div>
+
+        <div id="teacherListView" style="display:none">
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>教师信息列表</h3>
+                    <a href="#" class="btn btn-success" onclick="showAddTeacher()">新增教师</a>
+                </div>
+                <table>
+                    <thead><tr><th>编号</th><th>姓名</th><th>年龄</th><th>薪资</th><th>操作</th></tr></thead>
+                    <tbody id="teacherTableBody"></tbody>
+                </table>
+                <div class="pagination" id="teacherPagination"></div>
+            </div>
+        </div>
+
+        <div id="genericListView" style="display:none">
+            <div class="table-container">
+                <div class="table-header">
+                    <h3 id="genericTitle">信息列表（注解驱动）</h3>
+                </div>
+                <table>
+                    <thead id="genericThead"></thead>
+                    <tbody id="genericTbody"></tbody>
+                </table>
+                <div class="pagination" id="genericPagination"></div>
+            </div>
+        </div>
+
+        <div id="addStudentView" style="display:none">
+            <div class="form-container">
+                <h3>新增学生信息</h3>
+                <div class="form-group"><label>姓名</label><input type="text" id="addSName" placeholder="请输入姓名"></div>
+                <div class="form-group"><label>年龄</label><input type="number" id="addSAge" placeholder="请输入年龄"></div>
+                <div class="btn-group">
+                    <button class="btn btn-success" onclick="saveStudent()">保 存</button>
+                    <button class="btn btn-danger" onclick="showStudentList()">取 消</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="editStudentView" style="display:none">
+            <div class="form-container">
+                <h3>编辑学生信息</h3>
+                <input type="hidden" id="editSId">
+                <div class="form-group"><label>姓名</label><input type="text" id="editSName"></div>
+                <div class="form-group"><label>年龄</label><input type="number" id="editSAge"></div>
+                <div class="btn-group">
+                    <button class="btn btn-success" onclick="updateStudent()">保 存</button>
+                    <button class="btn btn-danger" onclick="showStudentList()">取 消</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="viewStudentView" style="display:none">
+            <div class="view-container">
+                <h3>学生信息详情</h3>
+                <div class="field-row"><div class="field-label">编号</div><div class="field-value" id="viewSId"></div></div>
+                <div class="field-row"><div class="field-label">姓名</div><div class="field-value" id="viewSName"></div></div>
+                <div class="field-row"><div class="field-label">年龄</div><div class="field-value" id="viewSAge"></div></div>
+                <div style="text-align:center; margin-top:24px;">
+                    <button class="btn btn-info" onclick="showStudentList()">返回列表</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="addTeacherView" style="display:none">
+            <div class="form-container">
+                <h3>新增教师信息</h3>
+                <div class="form-group"><label>姓名</label><input type="text" id="addTName" placeholder="请输入姓名"></div>
+                <div class="form-group"><label>年龄</label><input type="number" id="addTAge" placeholder="请输入年龄"></div>
+                <div class="form-group"><label>薪资</label><input type="number" step="0.01" id="addTSalary" placeholder="请输入薪资"></div>
+                <div class="btn-group">
+                    <button class="btn btn-success" onclick="saveTeacher()">保 存</button>
+                    <button class="btn btn-danger" onclick="showTeacherList()">取 消</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="editTeacherView" style="display:none">
+            <div class="form-container">
+                <h3>编辑教师信息</h3>
+                <input type="hidden" id="editTId">
+                <div class="form-group"><label>姓名</label><input type="text" id="editTName"></div>
+                <div class="form-group"><label>年龄</label><input type="number" id="editTAge"></div>
+                <div class="form-group"><label>薪资</label><input type="number" step="0.01" id="editTSalary"></div>
+                <div class="btn-group">
+                    <button class="btn btn-success" onclick="updateTeacher()">保 存</button>
+                    <button class="btn btn-danger" onclick="showTeacherList()">取 消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+var students = [
+    {id:1, name:'张三', age:20}, {id:2, name:'李四', age:21},
+    {id:3, name:'王五', age:22}, {id:4, name:'赵六', age:20},
+    {id:5, name:'钱七', age:23}, {id:6, name:'孙八', age:19},
+    {id:7, name:'周九', age:21}, {id:8, name:'吴十', age:22},
+    {id:9, name:'郑一', age:24}, {id:10, name:'冯二', age:20},
+    {id:11, name:'陈三', age:22}, {id:12, name:'褚四', age:21}
+];
+var teachers = [
+    {id:1, name:'刘老师', age:35, salary:8000.0}, {id:2, name:'陈老师', age:40, salary:9500.0},
+    {id:3, name:'杨老师', age:38, salary:8800.0}, {id:4, name:'黄老师', age:45, salary:10200.0},
+    {id:5, name:'林老师', age:33, salary:7500.0}, {id:6, name:'何老师', age:42, salary:9800.0},
+    {id:7, name:'罗老师', age:36, salary:8200.0}
+];
+var nextSId = 13, nextTId = 8;
+var sPage = 1, tPage = 1, gPage = 1, gEntity = 'student';
+var PAGE_SIZE = 5;
+var pendingAction = null;
+
+function showToast(msg, type) {
+    var t = document.getElementById('toast');
+    t.textContent = msg; t.className = 'toast ' + type + ' show';
+    setTimeout(function(){ t.className = 'toast'; }, 2000);
+}
+function closeModal() { document.getElementById('confirmModal').classList.remove('show'); pendingAction = null; }
+function confirmAction() { if(pendingAction) pendingAction(); closeModal(); }
+function showConfirm(msg, action) {
+    document.getElementById('confirmMsg').textContent = msg;
+    pendingAction = action;
+    document.getElementById('confirmModal').classList.add('show');
+}
+
+function doLogin() {
+    var u = document.getElementById('loginUser').value;
+    var p = document.getElementById('loginPass').value;
+    if (u === 'xcy' && p === 'ddd') {
+        document.getElementById('loginPage').classList.remove('active');
+        document.getElementById('mainPage').classList.add('active');
+        showStudentList();
+    } else {
+        document.getElementById('loginError').textContent = '用户名或密码错误';
+    }
+}
+function doLogout() {
+    document.getElementById('mainPage').classList.remove('active');
+    document.getElementById('loginPage').classList.add('active');
+    document.getElementById('loginError').textContent = '';
+}
+
+function switchDaoType() {
+    var v = document.getElementById('daoType').value;
+    var hints = {memory:'当前：内存存储模式', db:'当前：数据库存储模式', dbReflect:'当前：反射动态SQL模式', remote:'当前：远程网络调用模式'};
+    document.getElementById('daoTypeHint').textContent = hints[v] || '';
+    showToast('已切换到 ' + v + ' 模式', 'success');
+}
+
+function hideAllViews() {
+    ['studentListView','teacherListView','genericListView','addStudentView','editStudentView','viewStudentView','addTeacherView','editTeacherView'].forEach(function(id){
+        document.getElementById(id).style.display = 'none';
+    });
+    document.querySelectorAll('.navbar .nav-links a').forEach(function(a){ a.classList.remove('active'); });
+}
+
+function showStudentList() {
+    hideAllViews(); document.getElementById('studentListView').style.display = 'block';
+    document.getElementById('navStudent').classList.add('active');
+    renderStudentTable();
+}
+function showTeacherList() {
+    hideAllViews(); document.getElementById('teacherListView').style.display = 'block';
+    document.getElementById('navTeacher').classList.add('active');
+    renderTeacherTable();
+}
+function showGenericList(entity) {
+    hideAllViews(); document.getElementById('genericListView').style.display = 'block';
+    gEntity = entity;
+    document.getElementById('navGeneric' + (entity === 'student' ? 'S' : 'T')).classList.add('active');
+    renderGenericTable();
+}
+function showAddStudent() { hideAllViews(); document.getElementById('addStudentView').style.display = 'block'; }
+function showAddTeacher() { hideAllViews(); document.getElementById('addTeacherView').style.display = 'block'; }
+
+function renderStudentTable() {
+    var tbody = document.getElementById('studentTableBody');
+    var total = students.length;
+    var totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    if (sPage > totalPages) sPage = totalPages;
+    var start = (sPage - 1) * PAGE_SIZE;
+    var pageData = students.slice(start, start + PAGE_SIZE);
+
+    if (pageData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:30px;color:#999">暂无学生数据</td></tr>';
+    } else {
+        tbody.innerHTML = pageData.map(function(s){
+            return '<tr><td>'+s.id+'</td><td>'+s.name+'</td><td>'+s.age+'</td><td>'
+                +'<a href="#" class="btn btn-info btn-sm" onclick="viewStudent('+s.id+')">查看</a> '
+                +'<a href="#" class="btn btn-warning btn-sm" onclick="editStudent('+s.id+')">编辑</a> '
+                +'<a href="#" class="btn btn-danger btn-sm" onclick="deleteStudent('+s.id+')">删除</a>'
+                +'</td></tr>';
+        }).join('');
+    }
+    renderPagination('studentPagination', sPage, totalPages, total, function(p){ sPage = p; renderStudentTable(); });
+}
+
+function renderTeacherTable() {
+    var tbody = document.getElementById('teacherTableBody');
+    var total = teachers.length;
+    var totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    if (tPage > totalPages) tPage = totalPages;
+    var start = (tPage - 1) * PAGE_SIZE;
+    var pageData = teachers.slice(start, start + PAGE_SIZE);
+
+    if (pageData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#999">暂无教师数据</td></tr>';
+    } else {
+        tbody.innerHTML = pageData.map(function(t){
+            return '<tr><td>'+t.id+'</td><td>'+t.name+'</td><td>'+t.age+'</td><td>'+t.salary+'</td><td>'
+                +'<a href="#" class="btn btn-warning btn-sm" onclick="editTeacher('+t.id+')">编辑</a> '
+                +'<a href="#" class="btn btn-danger btn-sm" onclick="deleteTeacher('+t.id+')">删除</a>'
+                +'</td></tr>';
+        }).join('');
+    }
+    renderPagination('teacherPagination', tPage, totalPages, total, function(p){ tPage = p; renderTeacherTable(); });
+}
+
+function renderGenericTable() {
+    var data = gEntity === 'student' ? students : teachers;
+    var cols = gEntity === 'student'
+        ? [{label:'编号',field:'id'},{label:'姓名',field:'name'},{label:'年龄',field:'age'}]
+        : [{label:'编号',field:'id'},{label:'姓名',field:'name'},{label:'年龄',field:'age'},{label:'薪资',field:'salary'}];
+
+    document.getElementById('genericTitle').textContent = (gEntity === 'student' ? 'student' : 'teacher') + ' 信息列表（注解驱动）';
+    document.getElementById('genericThead').innerHTML = '<tr>' + cols.map(function(c){ return '<th>'+c.label+'</th>'; }).join('') + '</tr>';
+
+    var total = data.length;
+    var totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    if (gPage > totalPages) gPage = totalPages;
+    var start = (gPage - 1) * PAGE_SIZE;
+    var pageData = data.slice(start, start + PAGE_SIZE);
+
+    if (pageData.length === 0) {
+        document.getElementById('genericTbody').innerHTML = '<tr><td colspan="'+(cols.length+1)+'" style="text-align:center;padding:30px;color:#999">暂无数据</td></tr>';
+    } else {
+        document.getElementById('genericTbody').innerHTML = pageData.map(function(item){
+            return '<tr>' + cols.map(function(c){ return '<td>'+(item[c.field] !== undefined ? item[c.field] : '')+'</td>'; }).join('') + '</tr>';
+        }).join('');
+    }
+    renderPagination('genericPagination', gPage, totalPages, total, function(p){ gPage = p; renderGenericTable(); });
+}
+
+function renderPagination(containerId, current, totalPages, totalCount, callback) {
+    var c = document.getElementById(containerId);
+    var html = '';
+    if (current > 1) {
+        html += '<a onclick="arguments[0].preventDefault()">首页</a>';
+        html += '<a onclick="arguments[0].preventDefault()">上一页</a>';
+    } else {
+        html += '<span class="disabled">首页</span><span class="disabled">上一页</span>';
+    }
+    for (var i = 1; i <= totalPages; i++) {
+        html += i === current ? '<span class="active">'+i+'</span>' : '<a onclick="arguments[0].preventDefault()">'+i+'</a>';
+    }
+    if (current < totalPages) {
+        html += '<a onclick="arguments[0].preventDefault()">下一页</a>';
+        html += '<a onclick="arguments[0].preventDefault()">末页</a>';
+    } else {
+        html += '<span class="disabled">下一页</span><span class="disabled">末页</span>';
+    }
+    html += '<span style="margin-left:10px;color:#999;font-size:13px">共 '+totalCount+' 条</span>';
+    c.innerHTML = html;
+
+    var links = c.querySelectorAll('a');
+    links.forEach(function(a){
+        a.addEventListener('click', function(e){
+            e.preventDefault();
+            var text = a.textContent.trim();
+            if (text === '首页') callback(1);
+            else if (text === '上一页') callback(current - 1);
+            else if (text === '下一页') callback(current + 1);
+            else if (text === '末页') callback(totalPages);
+            else { var p = parseInt(text); if (!isNaN(p)) callback(p); }
+        });
+    });
+}
+
+function saveStudent() {
+    var name = document.getElementById('addSName').value.trim();
+    var age = parseInt(document.getElementById('addSAge').value);
+    if (!name) { showToast('请输入姓名', 'error'); return; }
+    if (isNaN(age)) { showToast('请输入有效年龄', 'error'); return; }
+    students.push({id: nextSId++, name: name, age: age});
+    showToast('新增学生成功', 'success');
+    document.getElementById('addSName').value = '';
+    document.getElementById('addSAge').value = '';
+    showStudentList();
+}
+
+function editStudent(id) {
+    var s = students.find(function(x){ return x.id === id; });
+    if (!s) return;
+    hideAllViews(); document.getElementById('editStudentView').style.display = 'block';
+    document.getElementById('editSId').value = s.id;
+    document.getElementById('editSName').value = s.name;
+    document.getElementById('editSAge').value = s.age;
+}
+
+function updateStudent() {
+    var id = parseInt(document.getElementById('editSId').value);
+    var name = document.getElementById('editSName').value.trim();
+    var age = parseInt(document.getElementById('editSAge').value);
+    if (!name) { showToast('请输入姓名', 'error'); return; }
+    var s = students.find(function(x){ return x.id === id; });
+    if (s) { s.name = name; s.age = age; }
+    showToast('修改学生成功', 'success');
+    showStudentList();
+}
+
+function viewStudent(id) {
+    var s = students.find(function(x){ return x.id === id; });
+    if (!s) return;
+    hideAllViews(); document.getElementById('viewStudentView').style.display = 'block';
+    document.getElementById('viewSId').textContent = s.id;
+    document.getElementById('viewSName').textContent = s.name;
+    document.getElementById('viewSAge').textContent = s.age;
+}
+
+function deleteStudent(id) {
+    showConfirm('确定删除该学生吗？', function(){
+        students = students.filter(function(x){ return x.id !== id; });
+        showToast('删除学生成功', 'success');
+        renderStudentTable();
+    });
+}
+
+function saveTeacher() {
+    var name = document.getElementById('addTName').value.trim();
+    var age = parseInt(document.getElementById('addTAge').value);
+    var salary = parseFloat(document.getElementById('addTSalary').value);
+    if (!name) { showToast('请输入姓名', 'error'); return; }
+    if (isNaN(age)) { showToast('请输入有效年龄', 'error'); return; }
+    if (isNaN(salary)) { showToast('请输入有效薪资', 'error'); return; }
+    teachers.push({id: nextTId++, name: name, age: age, salary: salary});
+    showToast('新增教师成功', 'success');
+    document.getElementById('addTName').value = '';
+    document.getElementById('addTAge').value = '';
+    document.getElementById('addTSalary').value = '';
+    showTeacherList();
+}
+
+function editTeacher(id) {
+    var t = teachers.find(function(x){ return x.id === id; });
+    if (!t) return;
+    hideAllViews(); document.getElementById('editTeacherView').style.display = 'block';
+    document.getElementById('editTId').value = t.id;
+    document.getElementById('editTName').value = t.name;
+    document.getElementById('editTAge').value = t.age;
+    document.getElementById('editTSalary').value = t.salary;
+}
+
+function updateTeacher() {
+    var id = parseInt(document.getElementById('editTId').value);
+    var name = document.getElementById('editTName').value.trim();
+    var age = parseInt(document.getElementById('editTAge').value);
+    var salary = parseFloat(document.getElementById('editTSalary').value);
+    if (!name) { showToast('请输入姓名', 'error'); return; }
+    var t = teachers.find(function(x){ return x.id === id; });
+    if (t) { t.name = name; t.age = age; t.salary = salary; }
+    showToast('修改教师成功', 'success');
+    showTeacherList();
+}
+
+function deleteTeacher(id) {
+    showConfirm('确定删除该教师吗？', function(){
+        teachers = teachers.filter(function(x){ return x.id !== id; });
+        showToast('删除教师成功', 'success');
+        renderTeacherTable();
+    });
+}
+
+document.getElementById('loginPass').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
+</script>
+</body>
+</html>
