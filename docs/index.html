@@ -4,360 +4,1020 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>学生学籍信息管理系统</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+        :root {
+            --navy: #1a1f36;
+            --navy-light: #252b45;
+            --navy-lighter: #2d3454;
+            --gold: #c9a84c;
+            --gold-light: #e2c97e;
+            --gold-dim: rgba(201,168,76,0.12);
+            --cream: #f8f6f0;
+            --cream-dark: #eee9df;
+            --text: #2c2c2c;
+            --text-light: #6b6b6b;
+            --text-muted: #9a9a9a;
+            --white: #ffffff;
+            --border: #e5e0d5;
+            --success: #3d9970;
+            --success-bg: #eaf6f0;
+            --danger: #c0392b;
+            --danger-bg: #fdecea;
+            --info: #2e6da4;
+            --info-bg: #e8f0fa;
+            --warning: #d4850a;
+            --warning-bg: #fef5e7;
+            --radius: 10px;
+            --radius-lg: 16px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+            --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+        }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
-            background: #f0f2f5;
-            color: #333;
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--cream);
+            color: var(--text);
             line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #fff;
-            padding: 0 30px;
-            display: flex;
-            justify-content: space-between;
+        ::selection { background: var(--gold); color: var(--navy); }
+
+        .page { display: none; min-height: 100vh; }
+        .page.active { display: flex; }
+
+        /* ===== LOGIN PAGE ===== */
+        .login-page {
+            background: var(--navy);
+            justify-content: center;
             align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-bg-pattern {
+            position: absolute;
+            inset: 0;
+            opacity: 0.04;
+            background-image:
+                radial-gradient(circle at 25% 25%, var(--gold) 1px, transparent 1px),
+                radial-gradient(circle at 75% 75%, var(--gold) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        .login-glow {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.15;
+        }
+        .login-glow-1 { background: var(--gold); top: -100px; left: -100px; }
+        .login-glow-2 { background: #4a6fa5; bottom: -150px; right: -100px; }
+
+        .login-card {
+            position: relative;
+            z-index: 2;
+            width: 420px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 48px 40px;
+            backdrop-filter: blur(20px);
+            animation: loginFadeIn 0.8s ease-out;
+        }
+
+        @keyframes loginFadeIn {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-emblem {
+            width: 56px;
             height: 56px;
-        }
-        .navbar h1 { font-size: 18px; font-weight: 600; white-space: nowrap; }
-        .navbar .nav-links { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
-        .navbar .nav-links a {
-            color: #fff; text-decoration: none; font-size: 13px;
-            padding: 6px 12px; border-radius: 4px; transition: background 0.3s;
-        }
-        .navbar .nav-links a:hover, .navbar .nav-links a.active { background: rgba(255,255,255,0.2); }
-
-        .container { max-width: 1100px; margin: 24px auto; padding: 0 20px; }
-
-        .login-container {
-            display: flex; justify-content: center; align-items: center;
-            min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .login-box {
-            background: #fff; border-radius: 12px; padding: 40px; width: 420px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        }
-        .login-box h2 { text-align: center; margin-bottom: 8px; color: #333; font-size: 24px; }
-        .login-box .login-sub { text-align: center; color: #999; font-size: 13px; margin-bottom: 28px; }
-        .form-group { margin-bottom: 18px; }
-        .form-group label { display: block; margin-bottom: 6px; font-size: 14px; color: #555; font-weight: 500; }
-        .form-group input, .form-group select {
-            width: 100%; padding: 10px 12px; border: 1px solid #d9d9d9; border-radius: 6px;
-            font-size: 14px; transition: border-color 0.3s; outline: none;
-        }
-        .form-group input:focus, .form-group select:focus {
-            border-color: #667eea; box-shadow: 0 0 0 2px rgba(102,126,234,0.2);
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-family: 'Crimson Pro', serif;
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--navy);
         }
 
-        .btn {
-            display: inline-block; padding: 8px 20px; border: none; border-radius: 6px;
-            font-size: 14px; cursor: pointer; text-decoration: none; transition: all 0.3s; text-align: center;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #fff; width: 100%; padding: 12px; font-size: 16px;
-        }
-        .btn-primary:hover { opacity: 0.9; box-shadow: 0 4px 12px rgba(102,126,234,0.4); }
-        .btn-success { background-color: #52c41a; color: #fff; }
-        .btn-success:hover { background-color: #45a814; }
-        .btn-warning { background-color: #faad14; color: #fff; }
-        .btn-warning:hover { background-color: #d8960e; }
-        .btn-danger { background-color: #ff4d4f; color: #fff; }
-        .btn-danger:hover { background-color: #d9363e; }
-        .btn-info { background-color: #1890ff; color: #fff; }
-        .btn-info:hover { background-color: #096dd9; }
-        .btn-sm { padding: 4px 12px; font-size: 12px; }
-
-        .error-msg { color: #ff4d4f; text-align: center; margin-bottom: 15px; font-size: 14px; min-height: 20px; }
-
-        .table-container {
-            background: #fff; border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden;
-        }
-        .table-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 16px 20px; border-bottom: 1px solid #f0f0f0;
-        }
-        .table-header h3 { font-size: 16px; color: #333; }
-
-        table { width: 100%; border-collapse: collapse; }
-        table th {
-            background: #fafafa; padding: 12px 16px; text-align: left;
-            font-size: 14px; color: #555; font-weight: 600; border-bottom: 1px solid #f0f0f0;
-        }
-        table td { padding: 12px 16px; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
-        table tr:hover { background: #f5f7fa; }
-
-        .pagination {
-            display: flex; justify-content: center; align-items: center;
-            padding: 16px 0; gap: 6px;
-        }
-        .pagination a, .pagination span {
-            padding: 6px 14px; border: 1px solid #d9d9d9; border-radius: 4px;
-            font-size: 14px; text-decoration: none; color: #333; transition: all 0.3s; cursor: pointer;
-        }
-        .pagination a:hover { border-color: #667eea; color: #667eea; }
-        .pagination .active { background: #667eea; color: #fff; border-color: #667eea; }
-        .pagination .disabled { color: #ccc; cursor: not-allowed; }
-
-        .form-container {
-            background: #fff; border-radius: 8px; padding: 30px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08); max-width: 500px; margin: 0 auto;
-        }
-        .form-container h3 { margin-bottom: 20px; text-align: center; color: #333; }
-        .form-container .btn-group { text-align: center; margin-top: 24px; }
-        .form-container .btn-group .btn { margin: 0 8px; }
-
-        .view-container {
-            background: #fff; border-radius: 8px; padding: 30px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08); max-width: 500px; margin: 0 auto;
-        }
-        .view-container h3 { margin-bottom: 20px; text-align: center; color: #333; }
-        .view-container .field-row {
-            display: flex; padding: 10px 0; border-bottom: 1px solid #f0f0f0;
-        }
-        .view-container .field-label { width: 80px; font-weight: 600; color: #555; }
-        .view-container .field-value { flex: 1; color: #333; }
-
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center;
-        }
-        .modal-overlay.show { display: flex; }
-        .modal {
-            background: #fff; border-radius: 8px; padding: 24px; width: 360px;
-            box-shadow: 0 6px 30px rgba(0,0,0,0.2); text-align: center;
-        }
-        .modal p { margin-bottom: 20px; font-size: 16px; }
-        .modal .btn { margin: 0 6px; }
-
-        .toast {
-            display: none; position: fixed; top: 20px; right: 20px; padding: 12px 24px;
-            border-radius: 6px; color: #fff; font-size: 14px; z-index: 2000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        .toast.success { background: #52c41a; }
-        .toast.error { background: #ff4d4f; }
-        .toast.show { display: block; animation: slideIn 0.3s ease; }
-        @keyframes slideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-
-        .page { display: none; }
-        .page.active { display: block; }
-
-        .switch-bar {
-            background: #fff; border-radius: 8px; padding: 12px 20px; margin-bottom: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-        }
-        .switch-bar label { font-size: 14px; color: #555; font-weight: 500; }
-        .switch-bar select {
-            padding: 6px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px;
+        .login-card h2 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--white);
+            text-align: center;
+            margin-bottom: 4px;
         }
 
-        .info-bar {
-            background: #fff; border-radius: 8px; padding: 16px 20px; margin-bottom: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08); font-size: 13px; color: #666;
-            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
-        }
-        .info-bar a { color: #667eea; text-decoration: none; }
-        .info-bar a:hover { text-decoration: underline; }
-        .info-bar .tech-tags { display: flex; gap: 6px; flex-wrap: wrap; }
-        .info-bar .tech-tag {
-            display: inline-block; padding: 2px 8px; background: #f0f2f5;
-            border-radius: 3px; font-size: 12px; color: #666;
+        .login-card .login-sub {
+            text-align: center;
+            color: rgba(255,255,255,0.4);
+            font-size: 13px;
+            margin-bottom: 32px;
+            letter-spacing: 0.5px;
         }
 
         .login-hint {
-            background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 6px;
-            padding: 10px 14px; margin-bottom: 20px; font-size: 13px; color: #52c41a;
+            background: rgba(201,168,76,0.08);
+            border: 1px solid rgba(201,168,76,0.15);
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 24px;
+            font-size: 12px;
+            color: var(--gold-light);
+            text-align: center;
         }
 
-        @media (max-width: 768px) {
-            .navbar { padding: 0 12px; height: auto; flex-wrap: wrap; padding: 10px 12px; gap: 8px; }
-            .navbar h1 { font-size: 16px; }
-            .navbar .nav-links a { padding: 4px 8px; font-size: 12px; }
-            .container { padding: 0 12px; margin: 12px auto; }
-            .info-bar { flex-direction: column; align-items: flex-start; }
+        .login-error {
+            color: #e74c3c;
+            text-align: center;
+            margin-bottom: 16px;
+            font-size: 13px;
+            min-height: 20px;
+        }
+
+        .login-field {
+            margin-bottom: 18px;
+        }
+        .login-field label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+        .login-field input {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--white);
+            outline: none;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+        .login-field input::placeholder { color: rgba(255,255,255,0.25); }
+        .login-field input:focus {
+            border-color: var(--gold);
+            background: rgba(255,255,255,0.08);
+            box-shadow: 0 0 0 3px rgba(201,168,76,0.15);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--navy);
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            margin-top: 8px;
+        }
+        .login-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(201,168,76,0.3);
+        }
+        .login-btn:active { transform: translateY(0); }
+
+        /* ===== MAIN LAYOUT ===== */
+        .main-page { flex-direction: column; }
+
+        .topbar {
+            background: var(--navy);
+            padding: 0 32px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .topbar-brand .emblem-sm {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Crimson Pro', serif;
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--navy);
+        }
+        .topbar-brand span {
+            font-family: 'Crimson Pro', serif;
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--white);
+            letter-spacing: 0.3px;
+        }
+
+        .topbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+        .topbar-nav a {
+            color: rgba(255,255,255,0.55);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        .topbar-nav a:hover { color: var(--white); background: rgba(255,255,255,0.06); }
+        .topbar-nav a.active { color: var(--gold-light); background: var(--gold-dim); }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .topbar-dao {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: rgba(255,255,255,0.4);
+        }
+        .topbar-dao select {
+            padding: 5px 10px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            font-size: 12px;
+            color: var(--gold-light);
+            outline: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .topbar-dao select option { background: var(--navy); color: var(--white); }
+
+        .topbar-logout {
+            color: rgba(255,255,255,0.4) !important;
+            font-size: 12px !important;
+            padding: 6px 12px !important;
+        }
+        .topbar-logout:hover { color: #e74c3c !important; background: rgba(231,76,60,0.1) !important; }
+
+        .main-body {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 28px 32px;
+        }
+
+        /* ===== STATS BAR ===== */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+            animation: fadeUp 0.5s ease-out;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stat-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            transition: var(--transition);
+        }
+        .stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+
+        .stat-card .stat-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+        .stat-card .stat-value {
+            font-family: 'Crimson Pro', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1;
+        }
+        .stat-card .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ===== CONTENT CARD ===== */
+        .content-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            animation: fadeUp 0.5s ease-out 0.1s both;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        .card-header h3 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .card-header .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: var(--cream);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0 12px;
+            transition: var(--transition);
+        }
+        .search-box:focus-within {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px var(--gold-dim);
+        }
+        .search-box svg { width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0; }
+        .search-box input {
+            border: none;
+            background: transparent;
+            padding: 8px 10px;
+            font-size: 13px;
+            outline: none;
+            width: 160px;
+            font-family: inherit;
+            color: var(--text);
+        }
+        .search-box input::placeholder { color: var(--text-muted); }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            color: var(--navy);
+        }
+        .btn-gold:hover { box-shadow: 0 4px 12px rgba(201,168,76,0.3); transform: translateY(-1px); }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+        .btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 6px; }
+        .btn-view { background: var(--info-bg); color: var(--info); }
+        .btn-view:hover { background: var(--info); color: var(--white); }
+        .btn-edit { background: var(--warning-bg); color: var(--warning); }
+        .btn-edit:hover { background: var(--warning); color: var(--white); }
+        .btn-del { background: var(--danger-bg); color: var(--danger); }
+        .btn-del:hover { background: var(--danger); color: var(--white); }
+
+        /* ===== TABLE ===== */
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th {
+            padding: 12px 20px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            background: var(--cream);
+            border-bottom: 1px solid var(--border);
+        }
+        .data-table td {
+            padding: 14px 20px;
+            font-size: 14px;
+            border-bottom: 1px solid #f0ece3;
+            vertical-align: middle;
+        }
+        .data-table tbody tr {
+            transition: var(--transition);
+        }
+        .data-table tbody tr:hover {
+            background: rgba(201,168,76,0.04);
+        }
+        .data-table tbody tr:last-child td { border-bottom: none; }
+
+        .td-actions { display: flex; gap: 6px; }
+
+        .td-id {
+            font-family: 'Crimson Pro', serif;
+            font-weight: 700;
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+        .td-name {
+            font-weight: 600;
+            color: var(--text);
+        }
+        .td-age {
+            color: var(--text-light);
+        }
+        .td-salary {
+            font-family: 'Crimson Pro', serif;
+            font-weight: 600;
+            color: var(--success);
+        }
+
+        .empty-row td {
+            text-align: center;
+            padding: 48px 20px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* ===== PAGINATION ===== */
+        .pagination-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+        }
+        .pagination-info {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .page-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--text);
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--white);
+            text-decoration: none;
+        }
+        .page-btn:hover { border-color: var(--gold); color: var(--gold); }
+        .page-btn.active {
+            background: var(--navy);
+            color: var(--gold-light);
+            border-color: var(--navy);
+        }
+        .page-btn.disabled {
+            color: var(--border);
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* ===== FORM VIEW ===== */
+        .form-view {
+            max-width: 520px;
+            margin: 0 auto;
+            animation: fadeUp 0.4s ease-out;
+        }
+        .form-view .content-card { overflow: visible; }
+
+        .form-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 22px;
+            font-weight: 700;
+            text-align: center;
+            padding: 24px 24px 0;
+        }
+        .form-body { padding: 24px; }
+
+        .form-field {
+            margin-bottom: 18px;
+        }
+        .form-field label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+        .form-field input, .form-field select {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: var(--transition);
+            font-family: inherit;
+            background: var(--white);
+            color: var(--text);
+        }
+        .form-field input:focus, .form-field select:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px var(--gold-dim);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            padding: 0 24px 24px;
+        }
+
+        /* ===== DETAIL VIEW ===== */
+        .detail-view {
+            max-width: 480px;
+            margin: 0 auto;
+            animation: fadeUp 0.4s ease-out;
+        }
+        .detail-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 22px;
+            font-weight: 700;
+            text-align: center;
+            padding: 24px 24px 16px;
+        }
+        .detail-body { padding: 0 24px 24px; }
+        .detail-row {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0ece3;
+        }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-label {
+            width: 80px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding-top: 2px;
+        }
+        .detail-value {
+            flex: 1;
+            font-size: 15px;
+            color: var(--text);
+            font-weight: 500;
+        }
+        .detail-actions {
+            display: flex;
+            justify-content: center;
+            padding: 0 24px 24px;
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(26,31,54,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal-box {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            width: 380px;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            animation: modalIn 0.25s ease-out;
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modal-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--danger-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 22px;
+        }
+        .modal-box p {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 24px;
+        }
+        .modal-actions { display: flex; justify-content: center; gap: 12px; }
+        .btn-cancel {
+            background: var(--cream);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .btn-cancel:hover { background: var(--cream-dark); }
+        .btn-danger-solid {
+            background: var(--danger);
+            color: var(--white);
+        }
+        .btn-danger-solid:hover { background: #a93226; }
+
+        /* ===== TOAST ===== */
+        .toast {
+            display: none;
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            padding: 14px 22px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 2000;
+            box-shadow: var(--shadow-lg);
+            animation: toastIn 0.35s ease-out;
+        }
+        .toast.success { background: var(--success); color: var(--white); }
+        .toast.error { background: var(--danger); color: var(--white); }
+        .toast.show { display: flex; align-items: center; gap: 8px; }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(40px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* ===== FOOTER ===== */
+        .main-footer {
+            text-align: center;
+            padding: 20px 32px;
+            font-size: 12px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            margin-top: 32px;
+        }
+        .main-footer a { color: var(--gold); text-decoration: none; }
+        .main-footer a:hover { text-decoration: underline; }
+
+        /* ===== GENERIC ===== */
+        .generic-switch {
+            display: flex;
+            background: var(--cream);
+            border-radius: 8px;
+            padding: 3px;
+            border: 1px solid var(--border);
+        }
+        .generic-switch button {
+            padding: 6px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            background: transparent;
+            color: var(--text-muted);
+            font-family: inherit;
+        }
+        .generic-switch button.active {
+            background: var(--white);
+            color: var(--text);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 900px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .main-body { padding: 20px 16px; }
+            .topbar { padding: 0 16px; }
+            .topbar-nav a { padding: 6px 10px; font-size: 12px; }
+            .topbar-dao { display: none; }
+        }
+        @media (max-width: 600px) {
+            .stats-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .stat-card { padding: 14px; }
+            .stat-card .stat-value { font-size: 22px; }
+            .topbar-brand span { display: none; }
+            .topbar-nav { gap: 0; }
+            .topbar-nav a { padding: 6px 8px; font-size: 11px; }
+            .search-box input { width: 100px; }
+            .card-header { flex-wrap: wrap; gap: 10px; }
+            .pagination-bar { flex-direction: column; gap: 10px; }
         }
     </style>
 </head>
 <body>
 
 <div id="toast" class="toast"></div>
+
 <div id="confirmModal" class="modal-overlay">
-    <div class="modal">
-        <p id="confirmMsg">确定删除该学生吗？</p>
-        <button class="btn btn-danger" onclick="confirmAction()">确定</button>
-        <button class="btn btn-info" onclick="closeModal()">取消</button>
-    </div>
-</div>
-
-<div id="loginPage" class="page active">
-    <div class="login-container">
-        <div class="login-box">
-            <h2>学生学籍信息管理系统</h2>
-            <div class="login-sub">Student Enrollment Information Management System</div>
-            <div id="loginError" class="error-msg"></div>
-            <div class="login-hint">演示账号：用户名 xcy，密码 ddd</div>
-            <div class="form-group">
-                <label>用户名</label>
-                <input type="text" id="loginUser" placeholder="请输入用户名" value="xcy">
-            </div>
-            <div class="form-group">
-                <label>密码</label>
-                <input type="password" id="loginPass" placeholder="请输入密码" value="ddd">
-            </div>
-            <button class="btn btn-primary" onclick="doLogin()">登 录</button>
+    <div class="modal-box">
+        <div class="modal-icon">⚠</div>
+        <p id="confirmMsg">确定删除该记录吗？</p>
+        <div class="modal-actions">
+            <button class="btn btn-cancel" onclick="closeModal()">取消</button>
+            <button class="btn btn-danger-solid" onclick="confirmAction()">确定删除</button>
         </div>
     </div>
 </div>
 
-<div id="mainPage" class="page">
-    <div class="navbar">
-        <h1>学生学籍信息管理系统</h1>
-        <div class="nav-links">
-            <a href="#" onclick="showStudentList()" class="active" id="navStudent">学生管理</a>
-            <a href="#" onclick="showTeacherList()" id="navTeacher">教师管理</a>
-            <a href="#" onclick="showGenericList('student')" id="navGenericS">通用列表(学生)</a>
-            <a href="#" onclick="showGenericList('teacher')" id="navGenericT">通用列表(教师)</a>
-            <a href="#" onclick="doLogout()">退出登录</a>
+<!-- ===== LOGIN PAGE ===== -->
+<div id="loginPage" class="page login-page active">
+    <div class="login-bg-pattern"></div>
+    <div class="login-glow login-glow-1"></div>
+    <div class="login-glow login-glow-2"></div>
+    <div class="login-card">
+        <div class="login-emblem">S</div>
+        <h2>学籍管理系统</h2>
+        <div class="login-sub">Student Enrollment Management System</div>
+        <div id="loginError" class="login-error"></div>
+        <div class="login-hint">演示账号：xcy / ddd</div>
+        <div class="login-field">
+            <label>用户名</label>
+            <input type="text" id="loginUser" placeholder="请输入用户名" value="xcy">
+        </div>
+        <div class="login-field">
+            <label>密码</label>
+            <input type="password" id="loginPass" placeholder="请输入密码" value="ddd">
+        </div>
+        <button class="login-btn" onclick="doLogin()">登 录</button>
+    </div>
+</div>
+
+<!-- ===== MAIN PAGE ===== -->
+<div id="mainPage" class="page main-page">
+    <div class="topbar">
+        <div class="topbar-brand">
+            <div class="emblem-sm">S</div>
+            <span>学籍管理系统</span>
+        </div>
+        <div class="topbar-nav">
+            <a href="#" onclick="showView('studentList')" class="active" id="navStudent">学生管理</a>
+            <a href="#" onclick="showView('teacherList')" id="navTeacher">教师管理</a>
+            <a href="#" onclick="showView('genericList')" id="navGeneric">通用列表</a>
+        </div>
+        <div class="topbar-right">
+            <div class="topbar-dao">
+                <span>DAO</span>
+                <select id="daoType" onchange="switchDaoType()">
+                    <option value="memory">内存存储</option>
+                    <option value="db">数据库</option>
+                    <option value="dbReflect">反射SQL</option>
+                    <option value="remote">远程调用</option>
+                </select>
+            </div>
+            <a href="#" class="topbar-nav topbar-logout" onclick="doLogout()">退出</a>
         </div>
     </div>
-    <div class="container">
-        <div class="info-bar">
-            <div>
-                <a href="https://github.com/w020316/Student-Enrollment-Information-Management-System" target="_blank">GitHub 源码</a>
-                <span style="margin:0 6px;color:#d9d9d9">|</span>
-                <span>MVC + JDBC + 反射 + 注解 + Socket</span>
+
+    <div class="main-body">
+        <!-- STATS -->
+        <div class="stats-row" id="statsRow">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:var(--gold-dim);color:var(--gold);">👨‍🎓</div>
+                <div class="stat-value" id="statStudentCount">12</div>
+                <div class="stat-label">学生总数</div>
             </div>
-            <div class="tech-tags">
-                <span class="tech-tag">Java 1.8</span>
-                <span class="tech-tag">Servlet/JSP</span>
-                <span class="tech-tag">MySQL</span>
-                <span class="tech-tag">Maven</span>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:var(--info-bg);color:var(--info);">👩‍🏫</div>
+                <div class="stat-value" id="statTeacherCount">7</div>
+                <div class="stat-label">教师总数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:var(--success-bg);color:var(--success);">📊</div>
+                <div class="stat-value" id="statAvgAge">21</div>
+                <div class="stat-label">学生平均年龄</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:var(--warning-bg);color:var(--warning);">💰</div>
+                <div class="stat-value" id="statAvgSalary">8.9K</div>
+                <div class="stat-label">教师平均薪资</div>
             </div>
         </div>
 
-        <div class="switch-bar">
-            <label>DAO模式：</label>
-            <select id="daoType" onchange="switchDaoType()">
-                <option value="memory">内存存储 (memory)</option>
-                <option value="db">数据库存储 (db)</option>
-                <option value="dbReflect">反射动态SQL (dbReflect)</option>
-                <option value="remote">远程网络调用 (remote)</option>
-            </select>
-            <span style="color:#999; font-size:13px;" id="daoTypeHint">当前：内存存储模式</span>
-        </div>
-
-        <div id="studentListView">
-            <div class="table-container">
-                <div class="table-header">
+        <!-- STUDENT LIST -->
+        <div id="studentListView" class="view-section">
+            <div class="content-card">
+                <div class="card-header">
                     <h3>学生信息列表</h3>
-                    <a href="#" class="btn btn-success" onclick="showAddStudent()">新增学生</a>
+                    <div class="header-actions">
+                        <div class="search-box">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input type="text" id="studentSearch" placeholder="搜索学生..." oninput="onStudentSearch()">
+                        </div>
+                        <button class="btn btn-gold" onclick="showView('addStudent')">+ 新增学生</button>
+                    </div>
                 </div>
-                <table>
+                <table class="data-table">
                     <thead><tr><th>编号</th><th>姓名</th><th>年龄</th><th>操作</th></tr></thead>
                     <tbody id="studentTableBody"></tbody>
                 </table>
-                <div class="pagination" id="studentPagination"></div>
+                <div class="pagination-bar">
+                    <div class="pagination-info" id="studentPageInfo"></div>
+                    <div class="pagination-controls" id="studentPagination"></div>
+                </div>
             </div>
         </div>
 
-        <div id="teacherListView" style="display:none">
-            <div class="table-container">
-                <div class="table-header">
+        <!-- TEACHER LIST -->
+        <div id="teacherListView" class="view-section" style="display:none">
+            <div class="content-card">
+                <div class="card-header">
                     <h3>教师信息列表</h3>
-                    <a href="#" class="btn btn-success" onclick="showAddTeacher()">新增教师</a>
+                    <div class="header-actions">
+                        <div class="search-box">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input type="text" id="teacherSearch" placeholder="搜索教师..." oninput="onTeacherSearch()">
+                        </div>
+                        <button class="btn btn-gold" onclick="showView('addTeacher')">+ 新增教师</button>
+                    </div>
                 </div>
-                <table>
+                <table class="data-table">
                     <thead><tr><th>编号</th><th>姓名</th><th>年龄</th><th>薪资</th><th>操作</th></tr></thead>
                     <tbody id="teacherTableBody"></tbody>
                 </table>
-                <div class="pagination" id="teacherPagination"></div>
+                <div class="pagination-bar">
+                    <div class="pagination-info" id="teacherPageInfo"></div>
+                    <div class="pagination-controls" id="teacherPagination"></div>
+                </div>
             </div>
         </div>
 
-        <div id="genericListView" style="display:none">
-            <div class="table-container">
-                <div class="table-header">
-                    <h3 id="genericTitle">信息列表（注解驱动）</h3>
+        <!-- GENERIC LIST -->
+        <div id="genericListView" class="view-section" style="display:none">
+            <div class="content-card">
+                <div class="card-header">
+                    <h3>信息列表（注解驱动）</h3>
+                    <div class="header-actions">
+                        <div class="generic-switch">
+                            <button class="active" id="genericBtnStudent" onclick="switchGeneric('student')">Student</button>
+                            <button id="genericBtnTeacher" onclick="switchGeneric('teacher')">Teacher</button>
+                        </div>
+                    </div>
                 </div>
-                <table>
+                <table class="data-table">
                     <thead id="genericThead"></thead>
                     <tbody id="genericTbody"></tbody>
                 </table>
-                <div class="pagination" id="genericPagination"></div>
-            </div>
-        </div>
-
-        <div id="addStudentView" style="display:none">
-            <div class="form-container">
-                <h3>新增学生信息</h3>
-                <div class="form-group"><label>姓名</label><input type="text" id="addSName" placeholder="请输入姓名"></div>
-                <div class="form-group"><label>年龄</label><input type="number" id="addSAge" placeholder="请输入年龄"></div>
-                <div class="btn-group">
-                    <button class="btn btn-success" onclick="saveStudent()">保 存</button>
-                    <button class="btn btn-danger" onclick="showStudentList()">取 消</button>
+                <div class="pagination-bar">
+                    <div class="pagination-info" id="genericPageInfo"></div>
+                    <div class="pagination-controls" id="genericPagination"></div>
                 </div>
             </div>
         </div>
 
-        <div id="editStudentView" style="display:none">
-            <div class="form-container">
-                <h3>编辑学生信息</h3>
-                <input type="hidden" id="editSId">
-                <div class="form-group"><label>姓名</label><input type="text" id="editSName"></div>
-                <div class="form-group"><label>年龄</label><input type="number" id="editSAge"></div>
-                <div class="btn-group">
-                    <button class="btn btn-success" onclick="updateStudent()">保 存</button>
-                    <button class="btn btn-danger" onclick="showStudentList()">取 消</button>
+        <!-- ADD STUDENT -->
+        <div id="addStudentView" class="view-section" style="display:none">
+            <div class="form-view">
+                <div class="content-card">
+                    <div class="form-title">新增学生</div>
+                    <div class="form-body">
+                        <div class="form-field"><label>姓名</label><input type="text" id="addSName" placeholder="请输入姓名"></div>
+                        <div class="form-field"><label>年龄</label><input type="number" id="addSAge" placeholder="请输入年龄"></div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-outline" onclick="showView('studentList')">取消</button>
+                        <button class="btn btn-gold" onclick="saveStudent()">保存</button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div id="viewStudentView" style="display:none">
-            <div class="view-container">
-                <h3>学生信息详情</h3>
-                <div class="field-row"><div class="field-label">编号</div><div class="field-value" id="viewSId"></div></div>
-                <div class="field-row"><div class="field-label">姓名</div><div class="field-value" id="viewSName"></div></div>
-                <div class="field-row"><div class="field-label">年龄</div><div class="field-value" id="viewSAge"></div></div>
-                <div style="text-align:center; margin-top:24px;">
-                    <button class="btn btn-info" onclick="showStudentList()">返回列表</button>
+        <!-- EDIT STUDENT -->
+        <div id="editStudentView" class="view-section" style="display:none">
+            <div class="form-view">
+                <div class="content-card">
+                    <div class="form-title">编辑学生</div>
+                    <div class="form-body">
+                        <input type="hidden" id="editSId">
+                        <div class="form-field"><label>姓名</label><input type="text" id="editSName"></div>
+                        <div class="form-field"><label>年龄</label><input type="number" id="editSAge"></div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-outline" onclick="showView('studentList')">取消</button>
+                        <button class="btn btn-gold" onclick="updateStudent()">保存</button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div id="addTeacherView" style="display:none">
-            <div class="form-container">
-                <h3>新增教师信息</h3>
-                <div class="form-group"><label>姓名</label><input type="text" id="addTName" placeholder="请输入姓名"></div>
-                <div class="form-group"><label>年龄</label><input type="number" id="addTAge" placeholder="请输入年龄"></div>
-                <div class="form-group"><label>薪资</label><input type="number" step="0.01" id="addTSalary" placeholder="请输入薪资"></div>
-                <div class="btn-group">
-                    <button class="btn btn-success" onclick="saveTeacher()">保 存</button>
-                    <button class="btn btn-danger" onclick="showTeacherList()">取 消</button>
+        <!-- VIEW STUDENT -->
+        <div id="viewStudentView" class="view-section" style="display:none">
+            <div class="detail-view">
+                <div class="content-card">
+                    <div class="detail-title">学生详情</div>
+                    <div class="detail-body">
+                        <div class="detail-row"><div class="detail-label">编号</div><div class="detail-value" id="viewSId"></div></div>
+                        <div class="detail-row"><div class="detail-label">姓名</div><div class="detail-value" id="viewSName"></div></div>
+                        <div class="detail-row"><div class="detail-label">年龄</div><div class="detail-value" id="viewSAge"></div></div>
+                    </div>
+                    <div class="detail-actions">
+                        <button class="btn btn-outline" onclick="showView('studentList')">返回列表</button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div id="editTeacherView" style="display:none">
-            <div class="form-container">
-                <h3>编辑教师信息</h3>
-                <input type="hidden" id="editTId">
-                <div class="form-group"><label>姓名</label><input type="text" id="editTName"></div>
-                <div class="form-group"><label>年龄</label><input type="number" id="editTAge"></div>
-                <div class="form-group"><label>薪资</label><input type="number" step="0.01" id="editTSalary"></div>
-                <div class="btn-group">
-                    <button class="btn btn-success" onclick="updateTeacher()">保 存</button>
-                    <button class="btn btn-danger" onclick="showTeacherList()">取 消</button>
+        <!-- ADD TEACHER -->
+        <div id="addTeacherView" class="view-section" style="display:none">
+            <div class="form-view">
+                <div class="content-card">
+                    <div class="form-title">新增教师</div>
+                    <div class="form-body">
+                        <div class="form-field"><label>姓名</label><input type="text" id="addTName" placeholder="请输入姓名"></div>
+                        <div class="form-field"><label>年龄</label><input type="number" id="addTAge" placeholder="请输入年龄"></div>
+                        <div class="form-field"><label>薪资</label><input type="number" step="0.01" id="addTSalary" placeholder="请输入薪资"></div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-outline" onclick="showView('teacherList')">取消</button>
+                        <button class="btn btn-gold" onclick="saveTeacher()">保存</button>
+                    </div>
                 </div>
             </div>
+        </div>
+
+        <!-- EDIT TEACHER -->
+        <div id="editTeacherView" class="view-section" style="display:none">
+            <div class="form-view">
+                <div class="content-card">
+                    <div class="form-title">编辑教师</div>
+                    <div class="form-body">
+                        <input type="hidden" id="editTId">
+                        <div class="form-field"><label>姓名</label><input type="text" id="editTName"></div>
+                        <div class="form-field"><label>年龄</label><input type="number" id="editTAge"></div>
+                        <div class="form-field"><label>薪资</label><input type="number" step="0.01" id="editTSalary"></div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-outline" onclick="showView('teacherList')">取消</button>
+                        <button class="btn btn-gold" onclick="updateTeacher()">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-footer">
+            学生学籍信息管理系统 · MVC + JDBC + 反射 + 注解 + Socket · <a href="https://github.com/w020316/Student-Enrollment-Information-Management-System" target="_blank">GitHub</a>
         </div>
     </div>
 </div>
@@ -372,20 +1032,22 @@ var students = [
     {id:11, name:'陈三', age:22}, {id:12, name:'褚四', age:21}
 ];
 var teachers = [
-    {id:1, name:'刘老师', age:35, salary:8000.0}, {id:2, name:'陈老师', age:40, salary:9500.0},
-    {id:3, name:'杨老师', age:38, salary:8800.0}, {id:4, name:'黄老师', age:45, salary:10200.0},
-    {id:5, name:'林老师', age:33, salary:7500.0}, {id:6, name:'何老师', age:42, salary:9800.0},
-    {id:7, name:'罗老师', age:36, salary:8200.0}
+    {id:1, name:'刘老师', age:35, salary:8000}, {id:2, name:'陈老师', age:40, salary:9500},
+    {id:3, name:'杨老师', age:38, salary:8800}, {id:4, name:'黄老师', age:45, salary:10200},
+    {id:5, name:'林老师', age:33, salary:7500}, {id:6, name:'何老师', age:42, salary:9800},
+    {id:7, name:'罗老师', age:36, salary:8200}
 ];
 var nextSId = 13, nextTId = 8;
 var sPage = 1, tPage = 1, gPage = 1, gEntity = 'student';
 var PAGE_SIZE = 5;
 var pendingAction = null;
+var studentSearchKey = '', teacherSearchKey = '';
 
 function showToast(msg, type) {
     var t = document.getElementById('toast');
-    t.textContent = msg; t.className = 'toast ' + type + ' show';
-    setTimeout(function(){ t.className = 'toast'; }, 2000);
+    t.textContent = msg;
+    t.className = 'toast ' + type + ' show';
+    setTimeout(function(){ t.className = 'toast'; }, 2500);
 }
 function closeModal() { document.getElementById('confirmModal').classList.remove('show'); pendingAction = null; }
 function confirmAction() { if(pendingAction) pendingAction(); closeModal(); }
@@ -401,7 +1063,7 @@ function doLogin() {
     if (u === 'xcy' && p === 'ddd') {
         document.getElementById('loginPage').classList.remove('active');
         document.getElementById('mainPage').classList.add('active');
-        showStudentList();
+        showView('studentList');
     } else {
         document.getElementById('loginError').textContent = '用户名或密码错误';
     }
@@ -414,87 +1076,126 @@ function doLogout() {
 
 function switchDaoType() {
     var v = document.getElementById('daoType').value;
-    var hints = {memory:'当前：内存存储模式', db:'当前：数据库存储模式', dbReflect:'当前：反射动态SQL模式', remote:'当前：远程网络调用模式'};
-    document.getElementById('daoTypeHint').textContent = hints[v] || '';
-    showToast('已切换到 ' + v + ' 模式', 'success');
+    var names = {memory:'内存存储', db:'数据库存储', dbReflect:'反射动态SQL', remote:'远程网络调用'};
+    showToast('已切换到' + names[v] + '模式', 'success');
 }
 
-function hideAllViews() {
-    ['studentListView','teacherListView','genericListView','addStudentView','editStudentView','viewStudentView','addTeacherView','editTeacherView'].forEach(function(id){
-        document.getElementById(id).style.display = 'none';
-    });
-    document.querySelectorAll('.navbar .nav-links a').forEach(function(a){ a.classList.remove('active'); });
+function updateStats() {
+    document.getElementById('statStudentCount').textContent = students.length;
+    document.getElementById('statTeacherCount').textContent = teachers.length;
+    var avgAge = students.length ? (students.reduce(function(s,x){return s+x.age},0)/students.length).toFixed(1) : 0;
+    document.getElementById('statAvgAge').textContent = avgAge;
+    var avgSal = teachers.length ? (teachers.reduce(function(s,x){return s+x.salary},0)/teachers.length/1000).toFixed(1) : 0;
+    document.getElementById('statAvgSalary').textContent = avgSal + 'K';
 }
 
-function showStudentList() {
-    hideAllViews(); document.getElementById('studentListView').style.display = 'block';
-    document.getElementById('navStudent').classList.add('active');
+function showView(name) {
+    var views = ['studentListView','teacherListView','genericListView','addStudentView','editStudentView','viewStudentView','addTeacherView','editTeacherView'];
+    views.forEach(function(id){ document.getElementById(id).style.display = 'none'; });
+    document.querySelectorAll('.topbar-nav a').forEach(function(a){ a.classList.remove('active'); });
+
+    var viewMap = {
+        studentList: 'studentListView',
+        teacherList: 'teacherListView',
+        genericList: 'genericListView',
+        addStudent: 'addStudentView',
+        editStudent: 'editStudentView',
+        viewStudent: 'viewStudentView',
+        addTeacher: 'addTeacherView',
+        editTeacher: 'editTeacherView'
+    };
+    var navMap = {
+        studentList: 'navStudent',
+        teacherList: 'navTeacher',
+        genericList: 'navGeneric'
+    };
+
+    document.getElementById(viewMap[name]).style.display = 'block';
+    if (navMap[name]) document.getElementById(navMap[name]).classList.add('active');
+
+    if (name === 'studentList') renderStudentTable();
+    else if (name === 'teacherList') renderTeacherTable();
+    else if (name === 'genericList') renderGenericTable();
+    updateStats();
+}
+
+function onStudentSearch() {
+    studentSearchKey = document.getElementById('studentSearch').value.trim().toLowerCase();
+    sPage = 1;
     renderStudentTable();
 }
-function showTeacherList() {
-    hideAllViews(); document.getElementById('teacherListView').style.display = 'block';
-    document.getElementById('navTeacher').classList.add('active');
+function onTeacherSearch() {
+    teacherSearchKey = document.getElementById('teacherSearch').value.trim().toLowerCase();
+    tPage = 1;
     renderTeacherTable();
 }
-function showGenericList(entity) {
-    hideAllViews(); document.getElementById('genericListView').style.display = 'block';
-    gEntity = entity;
-    document.getElementById('navGeneric' + (entity === 'student' ? 'S' : 'T')).classList.add('active');
-    renderGenericTable();
+
+function getFilteredStudents() {
+    if (!studentSearchKey) return students;
+    return students.filter(function(s) {
+        return s.name.toLowerCase().indexOf(studentSearchKey) !== -1 || String(s.id).indexOf(studentSearchKey) !== -1;
+    });
 }
-function showAddStudent() { hideAllViews(); document.getElementById('addStudentView').style.display = 'block'; }
-function showAddTeacher() { hideAllViews(); document.getElementById('addTeacherView').style.display = 'block'; }
+function getFilteredTeachers() {
+    if (!teacherSearchKey) return teachers;
+    return teachers.filter(function(t) {
+        return t.name.toLowerCase().indexOf(teacherSearchKey) !== -1 || String(t.id).indexOf(teacherSearchKey) !== -1;
+    });
+}
 
 function renderStudentTable() {
+    var data = getFilteredStudents();
     var tbody = document.getElementById('studentTableBody');
-    var total = students.length;
+    var total = data.length;
     var totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
     if (sPage > totalPages) sPage = totalPages;
     var start = (sPage - 1) * PAGE_SIZE;
-    var pageData = students.slice(start, start + PAGE_SIZE);
+    var pageData = data.slice(start, start + PAGE_SIZE);
 
     if (pageData.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:30px;color:#999">暂无学生数据</td></tr>';
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="4">暂无学生数据</td></tr>';
     } else {
         tbody.innerHTML = pageData.map(function(s){
-            return '<tr><td>'+s.id+'</td><td>'+s.name+'</td><td>'+s.age+'</td><td>'
-                +'<a href="#" class="btn btn-info btn-sm" onclick="viewStudent('+s.id+')">查看</a> '
-                +'<a href="#" class="btn btn-warning btn-sm" onclick="editStudent('+s.id+')">编辑</a> '
-                +'<a href="#" class="btn btn-danger btn-sm" onclick="deleteStudent('+s.id+')">删除</a>'
-                +'</td></tr>';
+            return '<tr><td class="td-id">#' + s.id + '</td><td class="td-name">' + s.name + '</td><td class="td-age">' + s.age + '</td>'
+                + '<td><div class="td-actions">'
+                + '<button class="btn btn-sm btn-view" onclick="viewStudent('+s.id+')">查看</button>'
+                + '<button class="btn btn-sm btn-edit" onclick="editStudent('+s.id+')">编辑</button>'
+                + '<button class="btn btn-sm btn-del" onclick="deleteStudent('+s.id+')">删除</button>'
+                + '</div></td></tr>';
         }).join('');
     }
-    renderPagination('studentPagination', sPage, totalPages, total, function(p){ sPage = p; renderStudentTable(); });
+    renderPagination('studentPagination', 'studentPageInfo', sPage, totalPages, total, start + 1, Math.min(start + PAGE_SIZE, total), function(p){ sPage = p; renderStudentTable(); });
 }
 
 function renderTeacherTable() {
+    var data = getFilteredTeachers();
     var tbody = document.getElementById('teacherTableBody');
-    var total = teachers.length;
+    var total = data.length;
     var totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
     if (tPage > totalPages) tPage = totalPages;
     var start = (tPage - 1) * PAGE_SIZE;
-    var pageData = teachers.slice(start, start + PAGE_SIZE);
+    var pageData = data.slice(start, start + PAGE_SIZE);
 
     if (pageData.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#999">暂无教师数据</td></tr>';
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="5">暂无教师数据</td></tr>';
     } else {
         tbody.innerHTML = pageData.map(function(t){
-            return '<tr><td>'+t.id+'</td><td>'+t.name+'</td><td>'+t.age+'</td><td>'+t.salary+'</td><td>'
-                +'<a href="#" class="btn btn-warning btn-sm" onclick="editTeacher('+t.id+')">编辑</a> '
-                +'<a href="#" class="btn btn-danger btn-sm" onclick="deleteTeacher('+t.id+')">删除</a>'
-                +'</td></tr>';
+            return '<tr><td class="td-id">#' + t.id + '</td><td class="td-name">' + t.name + '</td><td class="td-age">' + t.age + '</td><td class="td-salary">¥' + t.salary.toLocaleString() + '</td>'
+                + '<td><div class="td-actions">'
+                + '<button class="btn btn-sm btn-edit" onclick="editTeacher('+t.id+')">编辑</button>'
+                + '<button class="btn btn-sm btn-del" onclick="deleteTeacher('+t.id+')">删除</button>'
+                + '</div></td></tr>';
         }).join('');
     }
-    renderPagination('teacherPagination', tPage, totalPages, total, function(p){ tPage = p; renderTeacherTable(); });
+    renderPagination('teacherPagination', 'teacherPageInfo', tPage, totalPages, total, start + 1, Math.min(start + PAGE_SIZE, total), function(p){ tPage = p; renderTeacherTable(); });
 }
 
 function renderGenericTable() {
     var data = gEntity === 'student' ? students : teachers;
     var cols = gEntity === 'student'
-        ? [{label:'编号',field:'id'},{label:'姓名',field:'name'},{label:'年龄',field:'age'}]
-        : [{label:'编号',field:'id'},{label:'姓名',field:'name'},{label:'年龄',field:'age'},{label:'薪资',field:'salary'}];
+        ? [{label:'编号',field:'id',cls:'td-id'},{label:'姓名',field:'name',cls:'td-name'},{label:'年龄',field:'age',cls:'td-age'}]
+        : [{label:'编号',field:'id',cls:'td-id'},{label:'姓名',field:'name',cls:'td-name'},{label:'年龄',field:'age',cls:'td-age'},{label:'薪资',field:'salary',cls:'td-salary'}];
 
-    document.getElementById('genericTitle').textContent = (gEntity === 'student' ? 'student' : 'teacher') + ' 信息列表（注解驱动）';
     document.getElementById('genericThead').innerHTML = '<tr>' + cols.map(function(c){ return '<th>'+c.label+'</th>'; }).join('') + '</tr>';
 
     var total = data.length;
@@ -504,66 +1205,80 @@ function renderGenericTable() {
     var pageData = data.slice(start, start + PAGE_SIZE);
 
     if (pageData.length === 0) {
-        document.getElementById('genericTbody').innerHTML = '<tr><td colspan="'+(cols.length+1)+'" style="text-align:center;padding:30px;color:#999">暂无数据</td></tr>';
+        document.getElementById('genericTbody').innerHTML = '<tr class="empty-row"><td colspan="'+cols.length+'">暂无数据</td></tr>';
     } else {
         document.getElementById('genericTbody').innerHTML = pageData.map(function(item){
-            return '<tr>' + cols.map(function(c){ return '<td>'+(item[c.field] !== undefined ? item[c.field] : '')+'</td>'; }).join('') + '</tr>';
+            return '<tr>' + cols.map(function(c){
+                var val = item[c.field];
+                if (c.field === 'id') val = '#' + val;
+                if (c.field === 'salary') val = '¥' + val.toLocaleString();
+                return '<td class="'+c.cls+'">'+val+'</td>';
+            }).join('') + '</tr>';
         }).join('');
     }
-    renderPagination('genericPagination', gPage, totalPages, total, function(p){ gPage = p; renderGenericTable(); });
+    renderPagination('genericPagination', 'genericPageInfo', gPage, totalPages, total, start + 1, Math.min(start + PAGE_SIZE, total), function(p){ gPage = p; renderGenericTable(); });
 }
 
-function renderPagination(containerId, current, totalPages, totalCount, callback) {
-    var c = document.getElementById(containerId);
-    var html = '';
-    if (current > 1) {
-        html += '<a onclick="arguments[0].preventDefault()">首页</a>';
-        html += '<a onclick="arguments[0].preventDefault()">上一页</a>';
-    } else {
-        html += '<span class="disabled">首页</span><span class="disabled">上一页</span>';
-    }
-    for (var i = 1; i <= totalPages; i++) {
-        html += i === current ? '<span class="active">'+i+'</span>' : '<a onclick="arguments[0].preventDefault()">'+i+'</a>';
-    }
-    if (current < totalPages) {
-        html += '<a onclick="arguments[0].preventDefault()">下一页</a>';
-        html += '<a onclick="arguments[0].preventDefault()">末页</a>';
-    } else {
-        html += '<span class="disabled">下一页</span><span class="disabled">末页</span>';
-    }
-    html += '<span style="margin-left:10px;color:#999;font-size:13px">共 '+totalCount+' 条</span>';
-    c.innerHTML = html;
+function renderPagination(ctrlId, infoId, current, totalPages, totalCount, rangeStart, rangeEnd, callback) {
+    var ctrl = document.getElementById(ctrlId);
+    var info = document.getElementById(infoId);
+    info.textContent = '显示 ' + rangeStart + '-' + rangeEnd + ' 条，共 ' + totalCount + ' 条';
 
-    var links = c.querySelectorAll('a');
-    links.forEach(function(a){
-        a.addEventListener('click', function(e){
-            e.preventDefault();
-            var text = a.textContent.trim();
-            if (text === '首页') callback(1);
-            else if (text === '上一页') callback(current - 1);
-            else if (text === '下一页') callback(current + 1);
-            else if (text === '末页') callback(totalPages);
-            else { var p = parseInt(text); if (!isNaN(p)) callback(p); }
+    var html = '';
+    html += '<button class="page-btn' + (current <= 1 ? ' disabled' : '') + '" data-action="first">«</button>';
+    html += '<button class="page-btn' + (current <= 1 ? ' disabled' : '') + '" data-action="prev">‹</button>';
+
+    var startP = Math.max(1, current - 2);
+    var endP = Math.min(totalPages, current + 2);
+    if (startP > 1) html += '<button class="page-btn" data-page="1">1</button>';
+    if (startP > 2) html += '<span style="padding:0 4px;color:var(--text-muted)">…</span>';
+    for (var i = startP; i <= endP; i++) {
+        html += '<button class="page-btn' + (i === current ? ' active' : '') + '" data-page="'+i+'">'+i+'</button>';
+    }
+    if (endP < totalPages - 1) html += '<span style="padding:0 4px;color:var(--text-muted)">…</span>';
+    if (endP < totalPages) html += '<button class="page-btn" data-page="'+totalPages+'">'+totalPages+'</button>';
+
+    html += '<button class="page-btn' + (current >= totalPages ? ' disabled' : '') + '" data-action="next">›</button>';
+    html += '<button class="page-btn' + (current >= totalPages ? ' disabled' : '') + '" data-action="last">»</button>';
+
+    ctrl.innerHTML = html;
+    ctrl.querySelectorAll('.page-btn:not(.disabled)').forEach(function(btn){
+        btn.addEventListener('click', function(){
+            var action = btn.getAttribute('data-action');
+            var page = btn.getAttribute('data-page');
+            if (action === 'first') callback(1);
+            else if (action === 'prev') callback(current - 1);
+            else if (action === 'next') callback(current + 1);
+            else if (action === 'last') callback(totalPages);
+            else if (page) callback(parseInt(page));
         });
     });
+}
+
+function switchGeneric(entity) {
+    gEntity = entity;
+    gPage = 1;
+    document.getElementById('genericBtnStudent').classList.toggle('active', entity === 'student');
+    document.getElementById('genericBtnTeacher').classList.toggle('active', entity === 'teacher');
+    renderGenericTable();
 }
 
 function saveStudent() {
     var name = document.getElementById('addSName').value.trim();
     var age = parseInt(document.getElementById('addSAge').value);
     if (!name) { showToast('请输入姓名', 'error'); return; }
-    if (isNaN(age)) { showToast('请输入有效年龄', 'error'); return; }
+    if (isNaN(age) || age < 1) { showToast('请输入有效年龄', 'error'); return; }
     students.push({id: nextSId++, name: name, age: age});
     showToast('新增学生成功', 'success');
     document.getElementById('addSName').value = '';
     document.getElementById('addSAge').value = '';
-    showStudentList();
+    showView('studentList');
 }
 
 function editStudent(id) {
     var s = students.find(function(x){ return x.id === id; });
     if (!s) return;
-    hideAllViews(); document.getElementById('editStudentView').style.display = 'block';
+    showView('editStudent');
     document.getElementById('editSId').value = s.id;
     document.getElementById('editSName').value = s.name;
     document.getElementById('editSAge').value = s.age;
@@ -577,23 +1292,25 @@ function updateStudent() {
     var s = students.find(function(x){ return x.id === id; });
     if (s) { s.name = name; s.age = age; }
     showToast('修改学生成功', 'success');
-    showStudentList();
+    showView('studentList');
 }
 
 function viewStudent(id) {
     var s = students.find(function(x){ return x.id === id; });
     if (!s) return;
-    hideAllViews(); document.getElementById('viewStudentView').style.display = 'block';
-    document.getElementById('viewSId').textContent = s.id;
+    showView('viewStudent');
+    document.getElementById('viewSId').textContent = '#' + s.id;
     document.getElementById('viewSName').textContent = s.name;
     document.getElementById('viewSAge').textContent = s.age;
 }
 
 function deleteStudent(id) {
-    showConfirm('确定删除该学生吗？', function(){
+    var s = students.find(function(x){ return x.id === id; });
+    showConfirm('确定删除学生「' + (s ? s.name : '') + '」吗？此操作不可撤销。', function(){
         students = students.filter(function(x){ return x.id !== id; });
         showToast('删除学生成功', 'success');
         renderStudentTable();
+        updateStats();
     });
 }
 
@@ -602,20 +1319,20 @@ function saveTeacher() {
     var age = parseInt(document.getElementById('addTAge').value);
     var salary = parseFloat(document.getElementById('addTSalary').value);
     if (!name) { showToast('请输入姓名', 'error'); return; }
-    if (isNaN(age)) { showToast('请输入有效年龄', 'error'); return; }
-    if (isNaN(salary)) { showToast('请输入有效薪资', 'error'); return; }
+    if (isNaN(age) || age < 1) { showToast('请输入有效年龄', 'error'); return; }
+    if (isNaN(salary) || salary < 0) { showToast('请输入有效薪资', 'error'); return; }
     teachers.push({id: nextTId++, name: name, age: age, salary: salary});
     showToast('新增教师成功', 'success');
     document.getElementById('addTName').value = '';
     document.getElementById('addTAge').value = '';
     document.getElementById('addTSalary').value = '';
-    showTeacherList();
+    showView('teacherList');
 }
 
 function editTeacher(id) {
     var t = teachers.find(function(x){ return x.id === id; });
     if (!t) return;
-    hideAllViews(); document.getElementById('editTeacherView').style.display = 'block';
+    showView('editTeacher');
     document.getElementById('editTId').value = t.id;
     document.getElementById('editTName').value = t.name;
     document.getElementById('editTAge').value = t.age;
@@ -631,14 +1348,16 @@ function updateTeacher() {
     var t = teachers.find(function(x){ return x.id === id; });
     if (t) { t.name = name; t.age = age; t.salary = salary; }
     showToast('修改教师成功', 'success');
-    showTeacherList();
+    showView('teacherList');
 }
 
 function deleteTeacher(id) {
-    showConfirm('确定删除该教师吗？', function(){
+    var t = teachers.find(function(x){ return x.id === id; });
+    showConfirm('确定删除教师「' + (t ? t.name : '') + '」吗？此操作不可撤销。', function(){
         teachers = teachers.filter(function(x){ return x.id !== id; });
         showToast('删除教师成功', 'success');
         renderTeacherTable();
+        updateStats();
     });
 }
 
