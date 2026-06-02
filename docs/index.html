@@ -35,16 +35,50 @@
             --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
             --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
             --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+            --bg-body: var(--cream);
+            --bg-card: var(--white);
+            --bg-cream-input: var(--cream);
+            --bg-table-head: var(--cream);
+            --border-row: #f0ece3;
+            --chart-text: var(--text-muted);
+            --chart-bar-student: var(--gold);
+            --chart-bar-teacher: var(--info);
+            --chart-grid: rgba(0,0,0,0.06);
+        }
+
+        [data-theme="dark"] {
+            --cream: #141824;
+            --cream-dark: #1a1f30;
+            --text: #e0ddd6;
+            --text-light: #a8a5a0;
+            --text-muted: #706e6a;
+            --white: #1e2338;
+            --border: #2d3350;
+            --success-bg: rgba(61,153,112,0.12);
+            --danger-bg: rgba(192,57,43,0.12);
+            --info-bg: rgba(46,109,164,0.12);
+            --warning-bg: rgba(212,133,10,0.12);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.25);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.35);
+            --bg-body: #0f1219;
+            --bg-card: #1a1f36;
+            --bg-cream-input: #252b45;
+            --bg-table-head: #1e2338;
+            --border-row: #2d3350;
+            --chart-text: #706e6a;
+            --chart-grid: rgba(255,255,255,0.06);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'DM Sans', -apple-system, sans-serif;
-            background: var(--cream);
+            background: var(--bg-body);
             color: var(--text);
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
+            transition: background 0.4s ease, color 0.4s ease;
         }
 
         ::selection { background: var(--gold); color: var(--navy); }
@@ -52,13 +86,19 @@
         .page { display: none; min-height: 100vh; }
         .page.active { display: flex; }
 
-        /* ===== LOGIN PAGE ===== */
         .login-page {
             background: var(--navy);
             justify-content: center;
             align-items: center;
             position: relative;
             overflow: hidden;
+        }
+
+        #loginCanvas {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
         }
 
         .login-bg-pattern {
@@ -201,7 +241,6 @@
         }
         .login-btn:active { transform: translateY(0); }
 
-        /* ===== MAIN LAYOUT ===== */
         .main-page { flex-direction: column; }
 
         .topbar {
@@ -293,15 +332,154 @@
         }
         .topbar-logout:hover { color: #e74c3c !important; background: rgba(231,76,60,0.1) !important; }
 
+        .theme-toggle {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.06);
+            color: var(--gold-light);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            font-size: 16px;
+            padding: 0;
+        }
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--gold);
+        }
+
+        .hamburger-btn {
+            display: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.06);
+            color: var(--gold-light);
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            font-size: 18px;
+            padding: 0;
+        }
+        .hamburger-btn:hover { background: rgba(255,255,255,0.1); }
+
+        .mobile-nav-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(26,31,54,0.8);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+        }
+        .mobile-nav-overlay.show { display: block; }
+
+        .mobile-nav-drawer {
+            position: fixed;
+            top: 0;
+            right: -280px;
+            width: 280px;
+            height: 100%;
+            background: var(--navy);
+            z-index: 201;
+            transition: right 0.35s cubic-bezier(0.4,0,0.2,1);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border-left: 1px solid rgba(255,255,255,0.08);
+        }
+        .mobile-nav-drawer.open { right: 0; }
+
+        .mobile-nav-drawer .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .mobile-nav-drawer .drawer-header span {
+            font-family: 'Crimson Pro', serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--white);
+        }
+        .mobile-nav-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: none;
+            background: rgba(255,255,255,0.06);
+            color: rgba(255,255,255,0.5);
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+        .mobile-nav-close:hover { background: rgba(255,255,255,0.1); color: var(--white); }
+
+        .mobile-nav-drawer a {
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            padding: 12px 16px;
+            border-radius: 8px;
+            transition: var(--transition);
+            cursor: pointer;
+            display: block;
+        }
+        .mobile-nav-drawer a:hover { color: var(--white); background: rgba(255,255,255,0.06); }
+        .mobile-nav-drawer a.active { color: var(--gold-light); background: var(--gold-dim); }
+
+        .mobile-nav-drawer .drawer-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.08);
+            margin: 8px 0;
+        }
+
+        .mobile-nav-drawer .drawer-dao {
+            padding: 12px 16px;
+        }
+        .mobile-nav-drawer .drawer-dao label {
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .mobile-nav-drawer .drawer-dao select {
+            width: 100%;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--gold-light);
+            outline: none;
+            font-family: inherit;
+        }
+        .mobile-nav-drawer .drawer-dao select option { background: var(--navy); color: var(--white); }
+
         .main-body {
             flex: 1;
             max-width: 1200px;
             width: 100%;
             margin: 0 auto;
             padding: 28px 32px;
+            transition: background 0.4s ease;
         }
 
-        /* ===== STATS BAR ===== */
         .stats-row {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -316,11 +494,11 @@
         }
 
         .stat-card {
-            background: var(--white);
+            background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: var(--radius);
             padding: 20px;
-            transition: var(--transition);
+            transition: var(--transition), background 0.4s ease, border-color 0.4s ease;
         }
         .stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
 
@@ -340,20 +518,88 @@
             font-weight: 700;
             color: var(--text);
             line-height: 1;
+            transition: color 0.4s ease;
         }
         .stat-card .stat-label {
             font-size: 12px;
             color: var(--text-muted);
             margin-top: 4px;
+            transition: color 0.4s ease;
         }
 
-        /* ===== CONTENT CARD ===== */
+        .chart-section {
+            margin-bottom: 24px;
+            animation: fadeUp 0.5s ease-out 0.15s both;
+        }
+        .chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            transition: background 0.4s ease, border-color 0.4s ease;
+        }
+        .chart-card h4 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+            transition: color 0.4s ease;
+        }
+        .chart-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        .chart-container {
+            position: relative;
+        }
+        .chart-container canvas {
+            width: 100%;
+            height: 200px;
+            display: block;
+        }
+
+        .view-section {
+            position: relative;
+        }
+        .view-section.slide-out-left {
+            animation: slideOutLeft 0.3s ease-in forwards;
+        }
+        .view-section.slide-out-right {
+            animation: slideOutRight 0.3s ease-in forwards;
+        }
+        .view-section.slide-in-left {
+            animation: slideInLeft 0.35s ease-out forwards;
+        }
+        .view-section.slide-in-right {
+            animation: slideInRight 0.35s ease-out forwards;
+        }
+
+        @keyframes slideOutLeft {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(-40px); }
+        }
+        @keyframes slideOutRight {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(40px); }
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(40px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(-40px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
         .content-card {
-            background: var(--white);
+            background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
             overflow: hidden;
             animation: fadeUp 0.5s ease-out 0.1s both;
+            transition: background 0.4s ease, border-color 0.4s ease;
         }
 
         .card-header {
@@ -368,6 +614,7 @@
             font-size: 20px;
             font-weight: 700;
             color: var(--text);
+            transition: color 0.4s ease;
         }
         .card-header .header-actions {
             display: flex;
@@ -378,11 +625,11 @@
         .search-box {
             display: flex;
             align-items: center;
-            background: var(--cream);
+            background: var(--bg-cream-input);
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 0 12px;
-            transition: var(--transition);
+            transition: var(--transition), background 0.4s ease, border-color 0.4s ease;
         }
         .search-box:focus-within {
             border-color: var(--gold);
@@ -401,7 +648,6 @@
         }
         .search-box input::placeholder { color: var(--text-muted); }
 
-        /* ===== BUTTONS ===== */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -438,7 +684,6 @@
         .btn-del { background: var(--danger-bg); color: var(--danger); }
         .btn-del:hover { background: var(--danger); color: var(--white); }
 
-        /* ===== TABLE ===== */
         .data-table { width: 100%; border-collapse: collapse; }
         .data-table th {
             padding: 12px 20px;
@@ -448,14 +693,16 @@
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.8px;
-            background: var(--cream);
+            background: var(--bg-table-head);
             border-bottom: 1px solid var(--border);
+            transition: background 0.4s ease, color 0.4s ease;
         }
         .data-table td {
             padding: 14px 20px;
             font-size: 14px;
-            border-bottom: 1px solid #f0ece3;
+            border-bottom: 1px solid var(--border-row);
             vertical-align: middle;
+            transition: border-color 0.4s ease;
         }
         .data-table tbody tr {
             transition: var(--transition);
@@ -464,6 +711,15 @@
             background: rgba(201,168,76,0.04);
         }
         .data-table tbody tr:last-child td { border-bottom: none; }
+
+        .data-table tbody tr.row-animate {
+            animation: rowFadeIn 0.35s ease-out both;
+        }
+
+        @keyframes rowFadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
         .td-actions { display: flex; gap: 6px; }
 
@@ -493,7 +749,21 @@
             font-size: 14px;
         }
 
-        /* ===== PAGINATION ===== */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+        .empty-state svg {
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        .empty-state p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
         .pagination-bar {
             display: flex;
             justify-content: space-between;
@@ -522,7 +792,7 @@
             color: var(--text);
             cursor: pointer;
             transition: var(--transition);
-            background: var(--white);
+            background: var(--bg-card);
             text-decoration: none;
         }
         .page-btn:hover { border-color: var(--gold); color: var(--gold); }
@@ -537,7 +807,6 @@
             pointer-events: none;
         }
 
-        /* ===== FORM VIEW ===== */
         .form-view {
             max-width: 520px;
             margin: 0 auto;
@@ -551,6 +820,7 @@
             font-weight: 700;
             text-align: center;
             padding: 24px 24px 0;
+            color: var(--text);
         }
         .form-body { padding: 24px; }
 
@@ -573,9 +843,9 @@
             border-radius: 8px;
             font-size: 14px;
             outline: none;
-            transition: var(--transition);
+            transition: var(--transition), background 0.4s ease, border-color 0.4s ease;
             font-family: inherit;
-            background: var(--white);
+            background: var(--bg-card);
             color: var(--text);
         }
         .form-field input:focus, .form-field select:focus {
@@ -590,7 +860,6 @@
             padding: 0 24px 24px;
         }
 
-        /* ===== DETAIL VIEW ===== */
         .detail-view {
             max-width: 480px;
             margin: 0 auto;
@@ -602,12 +871,13 @@
             font-weight: 700;
             text-align: center;
             padding: 24px 24px 16px;
+            color: var(--text);
         }
         .detail-body { padding: 0 24px 24px; }
         .detail-row {
             display: flex;
             padding: 12px 0;
-            border-bottom: 1px solid #f0ece3;
+            border-bottom: 1px solid var(--border-row);
         }
         .detail-row:last-child { border-bottom: none; }
         .detail-label {
@@ -631,7 +901,6 @@
             padding: 0 24px 24px;
         }
 
-        /* ===== MODAL ===== */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -644,7 +913,7 @@
         }
         .modal-overlay.show { display: flex; }
         .modal-box {
-            background: var(--white);
+            background: var(--bg-card);
             border-radius: var(--radius-lg);
             padding: 32px;
             width: 380px;
@@ -686,7 +955,6 @@
         }
         .btn-danger-solid:hover { background: #a93226; }
 
-        /* ===== TOAST ===== */
         .toast {
             display: none;
             position: fixed;
@@ -699,31 +967,58 @@
             z-index: 2000;
             box-shadow: var(--shadow-lg);
             animation: toastIn 0.35s ease-out;
+            max-width: 360px;
         }
         .toast.success { background: var(--success); color: var(--white); }
         .toast.error { background: var(--danger); color: var(--white); }
+        .toast.welcome { background: linear-gradient(135deg, var(--navy), var(--navy-light)); color: var(--gold-light); border: 1px solid rgba(201,168,76,0.3); }
         .toast.show { display: flex; align-items: center; gap: 8px; }
         @keyframes toastIn {
             from { opacity: 0; transform: translateX(40px); }
             to { opacity: 1; transform: translateX(0); }
         }
 
-        /* ===== FOOTER ===== */
         .main-footer {
             text-align: center;
-            padding: 20px 32px;
+            padding: 24px 32px;
             font-size: 12px;
             color: var(--text-muted);
             border-top: 1px solid var(--border);
             margin-top: 32px;
+            transition: border-color 0.4s ease;
         }
         .main-footer a { color: var(--gold); text-decoration: none; }
         .main-footer a:hover { text-decoration: underline; }
 
-        /* ===== GENERIC ===== */
+        .footer-tech {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .footer-tech .tech-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            background: var(--gold-dim);
+            color: var(--gold);
+            border: 1px solid rgba(201,168,76,0.2);
+            transition: var(--transition);
+        }
+        .footer-tech .tech-tag:hover {
+            background: rgba(201,168,76,0.2);
+            border-color: var(--gold);
+        }
+
         .generic-switch {
             display: flex;
-            background: var(--cream);
+            background: var(--bg-cream-input);
             border-radius: 8px;
             padding: 3px;
             border: 1px solid var(--border);
@@ -741,29 +1036,30 @@
             font-family: inherit;
         }
         .generic-switch button.active {
-            background: var(--white);
+            background: var(--bg-card);
             color: var(--text);
             box-shadow: var(--shadow-sm);
         }
 
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 900px) {
             .stats-row { grid-template-columns: repeat(2, 1fr); }
             .main-body { padding: 20px 16px; }
             .topbar { padding: 0 16px; }
-            .topbar-nav a { padding: 6px 10px; font-size: 12px; }
+            .topbar-nav { display: none; }
             .topbar-dao { display: none; }
+            .hamburger-btn { display: flex; }
+            .chart-row { grid-template-columns: 1fr; }
         }
         @media (max-width: 600px) {
             .stats-row { grid-template-columns: 1fr 1fr; gap: 10px; }
             .stat-card { padding: 14px; }
             .stat-card .stat-value { font-size: 22px; }
             .topbar-brand span { display: none; }
-            .topbar-nav { gap: 0; }
-            .topbar-nav a { padding: 6px 8px; font-size: 11px; }
             .search-box input { width: 100px; }
             .card-header { flex-wrap: wrap; gap: 10px; }
             .pagination-bar { flex-direction: column; gap: 10px; }
+            .chart-row { grid-template-columns: 1fr; }
+            .login-card { width: calc(100% - 32px); padding: 32px 24px; }
         }
     </style>
 </head>
@@ -782,8 +1078,32 @@
     </div>
 </div>
 
-<!-- ===== LOGIN PAGE ===== -->
+<div id="mobileNavOverlay" class="mobile-nav-overlay" onclick="closeMobileNav()"></div>
+<div id="mobileNavDrawer" class="mobile-nav-drawer">
+    <div class="drawer-header">
+        <span>导航菜单</span>
+        <button class="mobile-nav-close" onclick="closeMobileNav()">✕</button>
+    </div>
+    <a href="#" onclick="mobileNav('studentList')" id="mNavStudent" class="active">👨‍🎓 学生管理</a>
+    <a href="#" onclick="mobileNav('teacherList')" id="mNavTeacher">👩‍🏫 教师管理</a>
+    <a href="#" onclick="mobileNav('genericList')" id="mNavGeneric">📋 通用列表</a>
+    <div class="drawer-divider"></div>
+    <div class="drawer-dao">
+        <label>DAO 模式</label>
+        <select id="daoTypeMobile" onchange="switchDaoTypeMobile()">
+            <option value="memory">内存存储</option>
+            <option value="db">数据库</option>
+            <option value="dbReflect">反射SQL</option>
+            <option value="remote">远程调用</option>
+        </select>
+    </div>
+    <div class="drawer-divider"></div>
+    <a href="#" onclick="resetData(); closeMobileNav();">🔄 重置数据</a>
+    <a href="#" onclick="doLogout(); closeMobileNav();">🚪 退出登录</a>
+</div>
+
 <div id="loginPage" class="page login-page active">
+    <canvas id="loginCanvas"></canvas>
     <div class="login-bg-pattern"></div>
     <div class="login-glow login-glow-1"></div>
     <div class="login-glow login-glow-2"></div>
@@ -805,7 +1125,6 @@
     </div>
 </div>
 
-<!-- ===== MAIN PAGE ===== -->
 <div id="mainPage" class="page main-page">
     <div class="topbar">
         <div class="topbar-brand">
@@ -827,37 +1146,51 @@
                     <option value="remote">远程调用</option>
                 </select>
             </div>
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="切换暗色/亮色模式">☀</button>
+            <button class="hamburger-btn" id="hamburgerBtn" onclick="openMobileNav()">☰</button>
             <a href="#" class="topbar-nav topbar-logout" onclick="doLogout()">退出</a>
             <a href="#" class="topbar-nav topbar-logout" onclick="resetData()" style="margin-left:0">重置</a>
         </div>
     </div>
 
     <div class="main-body">
-        <!-- STATS -->
         <div class="stats-row" id="statsRow">
             <div class="stat-card">
                 <div class="stat-icon" style="background:var(--gold-dim);color:var(--gold);">👨‍🎓</div>
-                <div class="stat-value" id="statStudentCount">12</div>
+                <div class="stat-value" id="statStudentCount">0</div>
                 <div class="stat-label">学生总数</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon" style="background:var(--info-bg);color:var(--info);">👩‍🏫</div>
-                <div class="stat-value" id="statTeacherCount">7</div>
+                <div class="stat-value" id="statTeacherCount">0</div>
                 <div class="stat-label">教师总数</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon" style="background:var(--success-bg);color:var(--success);">📊</div>
-                <div class="stat-value" id="statAvgAge">21</div>
+                <div class="stat-value" id="statAvgAge">0</div>
                 <div class="stat-label">学生平均年龄</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon" style="background:var(--warning-bg);color:var(--warning);">💰</div>
-                <div class="stat-value" id="statAvgSalary">8.9K</div>
+                <div class="stat-value" id="statAvgSalary">0K</div>
                 <div class="stat-label">教师平均薪资</div>
             </div>
         </div>
 
-        <!-- STUDENT LIST -->
+        <div class="chart-section" id="chartSection">
+            <div class="chart-card">
+                <h4>数据可视化</h4>
+                <div class="chart-row">
+                    <div class="chart-container">
+                        <canvas id="studentChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="teacherChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="studentListView" class="view-section">
             <div class="content-card">
                 <div class="card-header">
@@ -882,7 +1215,6 @@
             </div>
         </div>
 
-        <!-- TEACHER LIST -->
         <div id="teacherListView" class="view-section" style="display:none">
             <div class="content-card">
                 <div class="card-header">
@@ -907,7 +1239,6 @@
             </div>
         </div>
 
-        <!-- GENERIC LIST -->
         <div id="genericListView" class="view-section" style="display:none">
             <div class="content-card">
                 <div class="card-header">
@@ -930,7 +1261,6 @@
             </div>
         </div>
 
-        <!-- ADD STUDENT -->
         <div id="addStudentView" class="view-section" style="display:none">
             <div class="form-view">
                 <div class="content-card">
@@ -947,7 +1277,6 @@
             </div>
         </div>
 
-        <!-- EDIT STUDENT -->
         <div id="editStudentView" class="view-section" style="display:none">
             <div class="form-view">
                 <div class="content-card">
@@ -965,7 +1294,6 @@
             </div>
         </div>
 
-        <!-- VIEW STUDENT -->
         <div id="viewStudentView" class="view-section" style="display:none">
             <div class="detail-view">
                 <div class="content-card">
@@ -982,7 +1310,6 @@
             </div>
         </div>
 
-        <!-- ADD TEACHER -->
         <div id="addTeacherView" class="view-section" style="display:none">
             <div class="form-view">
                 <div class="content-card">
@@ -1000,7 +1327,6 @@
             </div>
         </div>
 
-        <!-- EDIT TEACHER -->
         <div id="editTeacherView" class="view-section" style="display:none">
             <div class="form-view">
                 <div class="content-card">
@@ -1019,7 +1345,6 @@
             </div>
         </div>
 
-        <!-- VIEW TEACHER -->
         <div id="viewTeacherView" class="view-section" style="display:none">
             <div class="detail-view">
                 <div class="content-card">
@@ -1038,7 +1363,15 @@
         </div>
 
         <div class="main-footer">
-            学生学籍信息管理系统 · MVC + JDBC + 反射 + 注解 + Socket · <a href="https://github.com/w020316/Student-Enrollment-Information-Management-System" target="_blank">GitHub</a>
+            学生学籍信息管理系统 · <a href="https://github.com/w020316/Student-Enrollment-Information-Management-System" target="_blank">GitHub</a>
+            <div class="footer-tech">
+                <span class="tech-tag">MVC</span>
+                <span class="tech-tag">JDBC</span>
+                <span class="tech-tag">Reflection</span>
+                <span class="tech-tag">Annotation</span>
+                <span class="tech-tag">Socket</span>
+                <span class="tech-tag">SPA</span>
+            </div>
         </div>
     </div>
 </div>
@@ -1101,13 +1434,23 @@ var PAGE_SIZE = 5;
 var pendingAction = null;
 var currentView = 'studentList';
 var studentSearchKey = '', teacherSearchKey = '';
+var isDarkMode = false;
+var loginUsername = '';
 
 function showToast(msg, type) {
     var t = document.getElementById('toast');
     t.textContent = msg;
     t.className = 'toast ' + type + ' show';
-    setTimeout(function(){ t.className = 'toast'; }, 2500);
+    setTimeout(function(){ t.className = 'toast'; }, 3000);
 }
+
+function showWelcomeToast(username) {
+    var t = document.getElementById('toast');
+    t.innerHTML = '👋 欢迎回来，<strong>' + username + '</strong>！';
+    t.className = 'toast welcome show';
+    setTimeout(function(){ t.className = 'toast'; }, 3500);
+}
+
 function closeModal() { document.getElementById('confirmModal').classList.remove('show'); pendingAction = null; }
 function confirmAction() { if(pendingAction) pendingAction(); closeModal(); }
 function showConfirm(msg, action) {
@@ -1120,9 +1463,11 @@ function doLogin() {
     var u = document.getElementById('loginUser').value;
     var p = document.getElementById('loginPass').value;
     if (u === 'xcy' && p === 'ddd') {
+        loginUsername = u;
         document.getElementById('loginPage').classList.remove('active');
         document.getElementById('mainPage').classList.add('active');
         showView('studentList');
+        setTimeout(function(){ showWelcomeToast(loginUsername); }, 400);
     } else {
         document.getElementById('loginError').textContent = '用户名或密码错误';
     }
@@ -1137,22 +1482,78 @@ function switchDaoType() {
     var v = document.getElementById('daoType').value;
     var names = {memory:'内存存储', db:'数据库存储', dbReflect:'反射动态SQL', remote:'远程网络调用'};
     showToast('已切换到' + names[v] + '模式', 'success');
+    document.getElementById('daoTypeMobile').value = v;
+}
+function switchDaoTypeMobile() {
+    var v = document.getElementById('daoTypeMobile').value;
+    document.getElementById('daoType').value = v;
+    switchDaoType();
+}
+
+function toggleTheme() {
+    isDarkMode = !isDarkMode;
+    document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : '');
+    document.getElementById('themeToggle').textContent = isDarkMode ? '🌙' : '☀';
+    try { localStorage.setItem('stu_theme', isDarkMode ? 'dark' : 'light'); } catch(e) {}
+    drawCharts();
+}
+
+function initTheme() {
+    try {
+        var saved = localStorage.getItem('stu_theme');
+        if (saved === 'dark') {
+            isDarkMode = true;
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.getElementById('themeToggle').textContent = '🌙';
+        }
+    } catch(e) {}
+}
+
+function openMobileNav() {
+    document.getElementById('mobileNavOverlay').classList.add('show');
+    document.getElementById('mobileNavDrawer').classList.add('open');
+}
+function closeMobileNav() {
+    document.getElementById('mobileNavOverlay').classList.remove('show');
+    document.getElementById('mobileNavDrawer').classList.remove('open');
+}
+function mobileNav(view) {
+    closeMobileNav();
+    showView(view);
+}
+
+function animateValue(el, start, end, duration, suffix) {
+    suffix = suffix || '';
+    var startTime = null;
+    function step(timestamp) {
+        if (!startTime) startTime = timestamp;
+        var progress = Math.min((timestamp - startTime) / duration, 1);
+        var eased = 1 - Math.pow(1 - progress, 3);
+        var current = start + (end - start) * eased;
+        if (Number.isInteger(end)) {
+            el.textContent = Math.round(current) + suffix;
+        } else {
+            el.textContent = current.toFixed(1) + suffix;
+        }
+        if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
 }
 
 function updateStats() {
-    document.getElementById('statStudentCount').textContent = students.length;
-    document.getElementById('statTeacherCount').textContent = teachers.length;
-    var avgAge = students.length ? (students.reduce(function(s,x){return s+x.age},0)/students.length).toFixed(1) : 0;
-    document.getElementById('statAvgAge').textContent = avgAge;
-    var avgSal = teachers.length ? (teachers.reduce(function(s,x){return s+x.salary},0)/teachers.length/1000).toFixed(1) : 0;
-    document.getElementById('statAvgSalary').textContent = avgSal + 'K';
+    var sc = students.length;
+    var tc = teachers.length;
+    var avgAge = students.length ? students.reduce(function(s,x){return s+x.age},0)/students.length : 0;
+    var avgSal = teachers.length ? teachers.reduce(function(s,x){return s+x.salary},0)/teachers.length/1000 : 0;
+
+    animateValue(document.getElementById('statStudentCount'), 0, sc, 800, '');
+    animateValue(document.getElementById('statTeacherCount'), 0, tc, 800, '');
+    animateValue(document.getElementById('statAvgAge'), 0, parseFloat(avgAge.toFixed(1)), 800, '');
+    animateValue(document.getElementById('statAvgSalary'), 0, parseFloat(avgSal.toFixed(1)), 800, 'K');
 }
 
 function showView(name) {
     var views = ['studentListView','teacherListView','genericListView','addStudentView','editStudentView','viewStudentView','addTeacherView','editTeacherView','viewTeacherView'];
-    views.forEach(function(id){ document.getElementById(id).style.display = 'none'; });
-    document.querySelectorAll('.topbar-nav a').forEach(function(a){ a.classList.remove('active'); });
-
     var viewMap = {
         studentList: 'studentListView',
         teacherList: 'teacherListView',
@@ -1169,15 +1570,51 @@ function showView(name) {
         teacherList: 'navTeacher',
         genericList: 'navGeneric'
     };
+    var mNavMap = {
+        studentList: 'mNavStudent',
+        teacherList: 'mNavTeacher',
+        genericList: 'mNavGeneric'
+    };
 
+    var prevView = currentView;
     currentView = name;
-    document.getElementById(viewMap[name]).style.display = 'block';
+
+    var prevEl = prevView ? document.getElementById(viewMap[prevView]) : null;
+    var nextEl = document.getElementById(viewMap[name]);
+
+    var listViews = ['studentList','teacherList','genericList'];
+    var prevIsList = listViews.indexOf(prevView) !== -1;
+    var nextIsList = listViews.indexOf(name) !== -1;
+
+    var outClass, inClass;
+    if (nextIsList && !prevIsList) {
+        outClass = 'slide-out-right';
+        inClass = 'slide-in-right';
+    } else if (!nextIsList && prevIsList) {
+        outClass = 'slide-out-left';
+        inClass = 'slide-in-left';
+    } else {
+        outClass = 'slide-out-left';
+        inClass = 'slide-in-left';
+    }
+
+    views.forEach(function(id){ document.getElementById(id).style.display = 'none'; });
+    document.querySelectorAll('.topbar-nav a').forEach(function(a){ a.classList.remove('active'); });
+    document.querySelectorAll('.mobile-nav-drawer a[id^="mNav"]').forEach(function(a){ a.classList.remove('active'); });
+
+    nextEl.style.display = 'block';
+    nextEl.classList.remove('slide-in-left','slide-in-right','slide-out-left','slide-out-right');
+    void nextEl.offsetWidth;
+    nextEl.classList.add(inClass);
+
     if (navMap[name]) document.getElementById(navMap[name]).classList.add('active');
+    if (mNavMap[name]) document.getElementById(mNavMap[name]).classList.add('active');
 
     if (name === 'studentList') renderStudentTable();
     else if (name === 'teacherList') renderTeacherTable();
     else if (name === 'genericList') renderGenericTable();
     updateStats();
+    drawCharts();
 }
 
 function onStudentSearch() {
@@ -1204,6 +1641,20 @@ function getFilteredTeachers() {
     });
 }
 
+var emptyStudentSvg = '<svg width="120" height="100" viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="30" width="80" height="60" rx="6" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.3"/><circle cx="60" cy="22" r="12" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.3"/><line x1="40" y1="50" x2="80" y2="50" stroke="currentColor" stroke-width="1.5" opacity="0.2"/><line x1="40" y1="60" x2="70" y2="60" stroke="currentColor" stroke-width="1.5" opacity="0.2"/><line x1="40" y1="70" x2="60" y2="70" stroke="currentColor" stroke-width="1.5" opacity="0.2"/></svg>';
+var emptyTeacherSvg = '<svg width="120" height="100" viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="15" y="25" width="90" height="55" rx="6" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.3"/><circle cx="60" cy="20" r="10" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.3"/><rect x="30" y="45" width="20" height="3" rx="1.5" fill="currentColor" opacity="0.2"/><rect x="30" y="53" width="35" height="3" rx="1.5" fill="currentColor" opacity="0.15"/><rect x="30" y="61" width="25" height="3" rx="1.5" fill="currentColor" opacity="0.1"/><circle cx="85" cy="55" r="8" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.2"/><text x="85" y="59" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.3">¥</text></svg>';
+var emptyGenericSvg = '<svg width="120" height="100" viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="20" width="80" height="65" rx="6" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.3"/><line x1="20" y1="40" x2="100" y2="40" stroke="currentColor" stroke-width="1" opacity="0.15"/><line x1="50" y1="20" x2="50" y2="85" stroke="currentColor" stroke-width="1" opacity="0.15"/><rect x="28" y="48" width="14" height="8" rx="2" fill="currentColor" opacity="0.1"/><rect x="28" y="62" width="14" height="8" rx="2" fill="currentColor" opacity="0.08"/></svg>';
+
+function applyRowAnimation(tbody) {
+    var rows = tbody.querySelectorAll('tr');
+    rows.forEach(function(row, i) {
+        row.classList.remove('row-animate');
+        void row.offsetWidth;
+        row.style.animationDelay = (i * 60) + 'ms';
+        row.classList.add('row-animate');
+    });
+}
+
 function renderStudentTable() {
     var data = getFilteredStudents();
     var tbody = document.getElementById('studentTableBody');
@@ -1214,7 +1665,7 @@ function renderStudentTable() {
     var pageData = data.slice(start, start + PAGE_SIZE);
 
     if (pageData.length === 0) {
-        tbody.innerHTML = '<tr class="empty-row"><td colspan="4">暂无学生数据</td></tr>';
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="4"><div class="empty-state">' + emptyStudentSvg + '<p>暂无学生数据</p></div></td></tr>';
     } else {
         tbody.innerHTML = pageData.map(function(s){
             return '<tr><td class="td-id">#' + s.id + '</td><td class="td-name">' + s.name + '</td><td class="td-age">' + s.age + '</td>'
@@ -1224,6 +1675,7 @@ function renderStudentTable() {
                 + '<button class="btn btn-sm btn-del" onclick="deleteStudent('+s.id+')">删除</button>'
                 + '</div></td></tr>';
         }).join('');
+        applyRowAnimation(tbody);
     }
     renderPagination('studentPagination', 'studentPageInfo', sPage, totalPages, total, start + 1, Math.min(start + PAGE_SIZE, total), function(p){ sPage = p; renderStudentTable(); });
 }
@@ -1238,7 +1690,7 @@ function renderTeacherTable() {
     var pageData = data.slice(start, start + PAGE_SIZE);
 
     if (pageData.length === 0) {
-        tbody.innerHTML = '<tr class="empty-row"><td colspan="5">暂无教师数据</td></tr>';
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="5"><div class="empty-state">' + emptyTeacherSvg + '<p>暂无教师数据</p></div></td></tr>';
     } else {
         tbody.innerHTML = pageData.map(function(t){
             return '<tr><td class="td-id">#' + t.id + '</td><td class="td-name">' + t.name + '</td><td class="td-age">' + t.age + '</td><td class="td-salary">¥' + t.salary.toLocaleString() + '</td>'
@@ -1248,6 +1700,7 @@ function renderTeacherTable() {
                 + '<button class="btn btn-sm btn-del" onclick="deleteTeacher('+t.id+')">删除</button>'
                 + '</div></td></tr>';
         }).join('');
+        applyRowAnimation(tbody);
     }
     renderPagination('teacherPagination', 'teacherPageInfo', tPage, totalPages, total, start + 1, Math.min(start + PAGE_SIZE, total), function(p){ tPage = p; renderTeacherTable(); });
 }
@@ -1266,10 +1719,11 @@ function renderGenericTable() {
     var start = (gPage - 1) * PAGE_SIZE;
     var pageData = data.slice(start, start + PAGE_SIZE);
 
+    var tbody = document.getElementById('genericTbody');
     if (pageData.length === 0) {
-        document.getElementById('genericTbody').innerHTML = '<tr class="empty-row"><td colspan="'+cols.length+'">暂无数据</td></tr>';
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="'+cols.length+'"><div class="empty-state">' + emptyGenericSvg + '<p>暂无数据</p></div></td></tr>';
     } else {
-        document.getElementById('genericTbody').innerHTML = pageData.map(function(item){
+        tbody.innerHTML = pageData.map(function(item){
             return '<tr>' + cols.map(function(c){
                 var val = item[c.field];
                 if (c.field === 'id') val = '#' + val;
@@ -1277,6 +1731,7 @@ function renderGenericTable() {
                 return '<td class="'+c.cls+'">'+val+'</td>';
             }).join('') + '</tr>';
         }).join('');
+        applyRowAnimation(tbody);
     }
     renderPagination('genericPagination', 'genericPageInfo', gPage, totalPages, total, start + 1, Math.min(start + PAGE_SIZE, total), function(p){ gPage = p; renderGenericTable(); });
 }
@@ -1376,6 +1831,7 @@ function deleteStudent(id) {
         showToast('删除学生成功', 'success');
         renderStudentTable();
         updateStats();
+        drawCharts();
     });
 }
 
@@ -1426,6 +1882,7 @@ function deleteTeacher(id) {
         showToast('删除教师成功', 'success');
         renderTeacherTable();
         updateStats();
+        drawCharts();
     });
 }
 
@@ -1476,6 +1933,235 @@ document.addEventListener('keydown', function(e){
         }
     }
 });
+
+// ===== LOGIN PARTICLE ANIMATION =====
+(function(){
+    var canvas = document.getElementById('loginCanvas');
+    var ctx = canvas.getContext('2d');
+    var particles = [];
+    var PARTICLE_COUNT = 35;
+    var animId = null;
+
+    function resize() {
+        canvas.width = canvas.offsetWidth * (window.devicePixelRatio || 1);
+        canvas.height = canvas.offsetHeight * (window.devicePixelRatio || 1);
+        ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+    }
+
+    function createParticle() {
+        var w = canvas.offsetWidth;
+        var h = canvas.offsetHeight;
+        var shapes = ['hexagon','circle','triangle'];
+        return {
+            x: Math.random() * w,
+            y: Math.random() * h,
+            vx: (Math.random() - 0.5) * 0.4,
+            vy: (Math.random() - 0.5) * 0.4,
+            size: Math.random() * 16 + 8,
+            rotation: Math.random() * Math.PI * 2,
+            rotSpeed: (Math.random() - 0.5) * 0.01,
+            shape: shapes[Math.floor(Math.random() * shapes.length)],
+            opacity: Math.random() * 0.15 + 0.05,
+            hue: 40 + Math.random() * 20
+        };
+    }
+
+    function init() {
+        resize();
+        particles = [];
+        for (var i = 0; i < PARTICLE_COUNT; i++) {
+            particles.push(createParticle());
+        }
+    }
+
+    function drawHexagon(cx, cy, r, rot) {
+        ctx.beginPath();
+        for (var i = 0; i < 6; i++) {
+            var angle = rot + (Math.PI / 3) * i;
+            var px = cx + r * Math.cos(angle);
+            var py = cy + r * Math.sin(angle);
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+    }
+
+    function drawTriangle(cx, cy, r, rot) {
+        ctx.beginPath();
+        for (var i = 0; i < 3; i++) {
+            var angle = rot + (Math.PI * 2 / 3) * i - Math.PI / 2;
+            var px = cx + r * Math.cos(angle);
+            var py = cy + r * Math.sin(angle);
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+    }
+
+    function animate() {
+        var w = canvas.offsetWidth;
+        var h = canvas.offsetHeight;
+        ctx.clearRect(0, 0, w, h);
+
+        for (var i = 0; i < particles.length; i++) {
+            var p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.rotation += p.rotSpeed;
+
+            if (p.x < -30) p.x = w + 30;
+            if (p.x > w + 30) p.x = -30;
+            if (p.y < -30) p.y = h + 30;
+            if (p.y > h + 30) p.y = -30;
+
+            ctx.save();
+            ctx.globalAlpha = p.opacity;
+            ctx.strokeStyle = 'hsl(' + p.hue + ', 60%, 55%)';
+            ctx.lineWidth = 1.2;
+
+            if (p.shape === 'hexagon') {
+                drawHexagon(p.x, p.y, p.size, p.rotation);
+                ctx.stroke();
+            } else if (p.shape === 'circle') {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.stroke();
+            } else {
+                drawTriangle(p.x, p.y, p.size, p.rotation);
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+
+        animId = requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', function(){
+        resize();
+    });
+
+    init();
+    animate();
+})();
+
+// ===== CHART DRAWING =====
+function drawCharts() {
+    drawBarChart('studentChart', students, 'age', '学生年龄分布', '岁');
+    drawBarChart('teacherChart', teachers, 'salary', '教师薪资分布', '¥');
+}
+
+function drawBarChart(canvasId, data, field, title, unit) {
+    var canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    var dpr = window.devicePixelRatio || 1;
+    var rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = 200 * dpr;
+    var ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    var W = rect.width;
+    var H = 200;
+    var padL = 50, padR = 20, padT = 10, padB = 40;
+    var chartW = W - padL - padR;
+    var chartH = H - padT - padB;
+
+    ctx.clearRect(0, 0, W, H);
+
+    var dist = {};
+    data.forEach(function(item) {
+        var key;
+        if (field === 'salary') {
+            key = Math.floor(item[field] / 1000) * 1000;
+        } else {
+            key = item[field];
+        }
+        dist[key] = (dist[key] || 0) + 1;
+    });
+
+    var keys = Object.keys(dist).map(Number).sort(function(a,b){return a-b;});
+    if (keys.length === 0) {
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-text').trim() || '#9a9a9a';
+        ctx.font = '13px DM Sans';
+        ctx.textAlign = 'center';
+        ctx.fillText('暂无数据', W/2, H/2);
+        return;
+    }
+
+    var maxVal = Math.max.apply(null, keys.map(function(k){return dist[k];}));
+    maxVal = Math.max(maxVal, 1);
+
+    var barGap = 8;
+    var barW = Math.min(36, (chartW - barGap * (keys.length + 1)) / keys.length);
+    var totalBarsW = keys.length * barW + (keys.length - 1) * barGap;
+    var offsetX = padL + (chartW - totalBarsW) / 2;
+
+    var style = getComputedStyle(document.documentElement);
+    var gridColor = style.getPropertyValue('--chart-grid').trim() || 'rgba(0,0,0,0.06)';
+    var textColor = style.getPropertyValue('--chart-text').trim() || '#9a9a9a';
+    var barColor = field === 'salary'
+        ? (style.getPropertyValue('--chart-bar-teacher').trim() || '#2e6da4')
+        : (style.getPropertyValue('--chart-bar-student').trim() || '#c9a84c');
+
+    ctx.strokeStyle = gridColor;
+    ctx.lineWidth = 1;
+    for (var g = 0; g <= 4; g++) {
+        var gy = padT + chartH - (chartH / 4) * g;
+        ctx.beginPath();
+        ctx.moveTo(padL, gy);
+        ctx.lineTo(W - padR, gy);
+        ctx.stroke();
+
+        ctx.fillStyle = textColor;
+        ctx.font = '10px DM Sans';
+        ctx.textAlign = 'right';
+        ctx.fillText(Math.round(maxVal / 4 * g), padL - 8, gy + 3);
+    }
+
+    keys.forEach(function(key, i) {
+        var val = dist[key];
+        var barH = (val / maxVal) * chartH;
+        var x = offsetX + i * (barW + barGap);
+        var y = padT + chartH - barH;
+
+        var grad = ctx.createLinearGradient(x, y, x, padT + chartH);
+        grad.addColorStop(0, barColor);
+        grad.addColorStop(1, barColor + '44');
+        ctx.fillStyle = grad;
+
+        var r = Math.min(4, barW / 4);
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + barW - r, y);
+        ctx.quadraticCurveTo(x + barW, y, x + barW, y + r);
+        ctx.lineTo(x + barW, padT + chartH);
+        ctx.lineTo(x, padT + chartH);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = textColor;
+        ctx.font = '10px DM Sans';
+        ctx.textAlign = 'center';
+        var label = field === 'salary' ? (key/1000) + 'K' : key;
+        ctx.fillText(label, x + barW / 2, padT + chartH + 16);
+
+        if (val > 0) {
+            ctx.fillStyle = barColor;
+            ctx.font = 'bold 10px DM Sans';
+            ctx.fillText(val, x + barW / 2, y - 6);
+        }
+    });
+
+    ctx.fillStyle = textColor;
+    ctx.font = '11px DM Sans';
+    ctx.textAlign = 'center';
+    ctx.fillText(title, W / 2, H - 2);
+}
+
+// ===== INIT =====
+initTheme();
 </script>
 </body>
 </html>
