@@ -10,3 +10,6 @@ target/
 .DS_Store
 Thumbs.db
 *.log
+*.docx
+*.txt
+er_diagram.png
