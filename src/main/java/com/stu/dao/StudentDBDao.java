@@ -36,7 +36,7 @@ public class StudentDBDao implements StudentDao {
     @Override
     public List<Student> findByPage(int page, int size) {
         List<Student> list = new ArrayList<>();
-        String sql = "SELECT * FROM student LIMIT ? OFFSET ?";
+        String sql = "SELECT * FROM student ORDER BY id ASC LIMIT ? OFFSET ?";
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -45,6 +45,29 @@ public class StudentDBDao implements StudentDao {
             pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, size);
             pstmt.setInt(2, (page - 1) * size);
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                list.add(mapRow(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DBConnection.close(conn, pstmt, rs);
+        }
+        return list;
+    }
+
+    @Override
+    public List<Student> findByName(String name) {
+        List<Student> list = new ArrayList<>();
+        String sql = "SELECT * FROM student WHERE name LIKE ? ORDER BY id ASC";
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            conn = DBConnection.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, "%" + name + "%");
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 list.add(mapRow(rs));
@@ -98,14 +121,17 @@ public class StudentDBDao implements StudentDao {
 
     @Override
     public void insert(Student student) {
-        String sql = "INSERT INTO student (name, age) VALUES (?, ?)";
+        String sql = "INSERT INTO student (student_no, name, gender, age, status) VALUES (?, ?, ?, ?, ?)";
         Connection conn = null;
         PreparedStatement pstmt = null;
         try {
             conn = DBConnection.getConnection();
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, student.getName());
-            pstmt.setObject(2, student.getAge());
+            pstmt.setString(1, student.getStudentNo());
+            pstmt.setString(2, student.getName());
+            pstmt.setString(3, student.getGender());
+            pstmt.setObject(4, student.getAge());
+            pstmt.setString(5, student.getStatus());
             pstmt.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -116,15 +142,18 @@ public class StudentDBDao implements StudentDao {
 
     @Override
     public void update(Student student) {
-        String sql = "UPDATE student SET name = ?, age = ? WHERE id = ?";
+        String sql = "UPDATE student SET student_no = ?, name = ?, gender = ?, age = ?, status = ? WHERE id = ?";
         Connection conn = null;
         PreparedStatement pstmt = null;
         try {
             conn = DBConnection.getConnection();
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, student.getName());
-            pstmt.setObject(2, student.getAge());
-            pstmt.setInt(3, student.getId());
+            pstmt.setString(1, student.getStudentNo());
+            pstmt.setString(2, student.getName());
+            pstmt.setString(3, student.getGender());
+            pstmt.setObject(4, student.getAge());
+            pstmt.setString(5, student.getStatus());
+            pstmt.setInt(6, student.getId());
             pstmt.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -153,8 +182,11 @@ public class StudentDBDao implements StudentDao {
     private Student mapRow(ResultSet rs) throws Exception {
         Student s = new Student();
         s.setId(rs.getInt("id"));
+        s.setStudentNo(rs.getString("student_no"));
         s.setName(rs.getString("name"));
+        s.setGender(rs.getString("gender"));
         s.setAge(rs.getInt("age"));
+        s.setStatus(rs.getString("status"));
         return s;
     }
 }

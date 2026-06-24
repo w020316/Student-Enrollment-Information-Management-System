@@ -2,9 +2,11 @@ package com.stu.servlet;
 
 import com.stu.dao.StudentDao;
 import com.stu.dao.TeacherDao;
+import com.stu.dao.CourseDao;
 import com.stu.entity.EntityInfo;
 import com.stu.entity.Student;
 import com.stu.entity.Teacher;
+import com.stu.entity.Course;
 import com.stu.factory.DaoFactory;
 import com.stu.util.EntityInfoHelper;
 
@@ -37,6 +39,11 @@ public class GenericListServlet extends HttpServlet {
         if ("teacher".equals(entity)) {
             clazz = Teacher.class;
             TeacherDao dao = DaoFactory.getInstance().getTeacherDao();
+            dataList = dao.findByPage(page, size);
+            totalCount = dao.count();
+        } else if ("course".equals(entity)) {
+            clazz = Course.class;
+            CourseDao dao = DaoFactory.getInstance().getCourseDao();
             dataList = dao.findByPage(page, size);
             totalCount = dao.count();
         } else {

@@ -482,7 +482,7 @@
 
         .stats-row {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 16px;
             margin-bottom: 24px;
             animation: fadeUp 0.5s ease-out;
@@ -1086,6 +1086,8 @@
     </div>
     <a href="#" onclick="mobileNav('studentList')" id="mNavStudent" class="active">👨‍🎓 学生管理</a>
     <a href="#" onclick="mobileNav('teacherList')" id="mNavTeacher">👩‍🏫 教师管理</a>
+    <a href="#" onclick="mobileNav('courseList')" id="mNavCourse">📚 课程管理</a>
+    <a href="#" onclick="mobileNav('scoreList')" id="mNavScore">📝 成绩管理</a>
     <a href="#" onclick="mobileNav('genericList')" id="mNavGeneric">📋 通用列表</a>
     <div class="drawer-divider"></div>
     <div class="drawer-dao">
@@ -1134,6 +1136,8 @@
         <div class="topbar-nav">
             <a href="#" onclick="showView('studentList')" class="active" id="navStudent">学生管理</a>
             <a href="#" onclick="showView('teacherList')" id="navTeacher">教师管理</a>
+            <a href="#" onclick="showView('courseList')" id="navCourse">课程管理</a>
+            <a href="#" onclick="showView('scoreList')" id="navScore">成绩管理</a>
             <a href="#" onclick="showView('genericList')" id="navGeneric">通用列表</a>
         </div>
         <div class="topbar-right">
@@ -1164,6 +1168,16 @@
                 <div class="stat-icon" style="background:var(--info-bg);color:var(--info);">👩‍🏫</div>
                 <div class="stat-value" id="statTeacherCount">0</div>
                 <div class="stat-label">教师总数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:var(--success-bg);color:var(--success);">📚</div>
+                <div class="stat-value" id="statCourseCount">0</div>
+                <div class="stat-label">课程总数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:var(--warning-bg);color:var(--warning);">📝</div>
+                <div class="stat-value" id="statScoreCount">0</div>
+                <div class="stat-label">成绩记录</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon" style="background:var(--success-bg);color:var(--success);">📊</div>
@@ -1205,7 +1219,7 @@
                     </div>
                 </div>
                 <table class="data-table">
-                    <thead><tr><th>编号</th><th>姓名</th><th>年龄</th><th>操作</th></tr></thead>
+                    <thead><tr><th>编号</th><th>学号</th><th>姓名</th><th>性别</th><th>年龄</th><th>在籍信息</th><th>操作</th></tr></thead>
                     <tbody id="studentTableBody"></tbody>
                 </table>
                 <div class="pagination-bar">
@@ -1229,12 +1243,52 @@
                     </div>
                 </div>
                 <table class="data-table">
-                    <thead><tr><th>编号</th><th>姓名</th><th>年龄</th><th>薪资</th><th>操作</th></tr></thead>
+                    <thead><tr><th>编号</th><th>工号</th><th>姓名</th><th>性别</th><th>年龄</th><th>薪资</th><th>操作</th></tr></thead>
                     <tbody id="teacherTableBody"></tbody>
                 </table>
                 <div class="pagination-bar">
                     <div class="pagination-info" id="teacherPageInfo"></div>
                     <div class="pagination-controls" id="teacherPagination"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="courseListView" class="view-section" style="display:none">
+            <div class="content-card">
+                <div class="card-header">
+                    <h3>课程信息列表</h3>
+                    <div class="header-actions">
+                        <button class="btn btn-gold" onclick="showView('addCourse')">+ 新增课程</button>
+                        <button class="btn btn-outline" onclick="exportCSV('course')">导出CSV</button>
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead><tr><th>编号</th><th>课程编号</th><th>课程名称</th><th>学分</th><th>学时</th><th>操作</th></tr></thead>
+                    <tbody id="courseTableBody"></tbody>
+                </table>
+                <div class="pagination-bar">
+                    <div class="pagination-info" id="coursePageInfo"></div>
+                    <div class="pagination-controls" id="coursePagination"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="scoreListView" class="view-section" style="display:none">
+            <div class="content-card">
+                <div class="card-header">
+                    <h3>成绩信息列表</h3>
+                    <div class="header-actions">
+                        <button class="btn btn-gold" onclick="showView('addScore')">+ 新增成绩</button>
+                        <button class="btn btn-outline" onclick="exportCSV('score')">导出CSV</button>
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead><tr><th>编号</th><th>学生姓名</th><th>课程名称</th><th>成绩</th><th>操作</th></tr></thead>
+                    <tbody id="scoreTableBody"></tbody>
+                </table>
+                <div class="pagination-bar">
+                    <div class="pagination-info" id="scorePageInfo"></div>
+                    <div class="pagination-controls" id="scorePagination"></div>
                 </div>
             </div>
         </div>
@@ -1247,6 +1301,7 @@
                         <div class="generic-switch">
                             <button class="active" id="genericBtnStudent" onclick="switchGeneric('student')">Student</button>
                             <button id="genericBtnTeacher" onclick="switchGeneric('teacher')">Teacher</button>
+                            <button id="genericBtnCourse" onclick="switchGeneric('course')">Course</button>
                         </div>
                     </div>
                 </div>
@@ -1266,8 +1321,11 @@
                 <div class="content-card">
                     <div class="form-title">新增学生</div>
                     <div class="form-body">
+                        <div class="form-field"><label>学号</label><input type="text" id="addSStudentNo" placeholder="请输入学号"></div>
                         <div class="form-field"><label>姓名</label><input type="text" id="addSName" placeholder="请输入姓名"></div>
+                        <div class="form-field"><label>性别</label><select id="addSGender"><option value="男">男</option><option value="女">女</option></select></div>
                         <div class="form-field"><label>年龄</label><input type="number" id="addSAge" placeholder="请输入年龄"></div>
+                        <div class="form-field"><label>在籍信息</label><select id="addSStatus"><option value="在读">在读</option><option value="休学">休学</option><option value="毕业">毕业</option><option value="退学">退学</option></select></div>
                     </div>
                     <div class="form-actions">
                         <button class="btn btn-outline" onclick="showView('studentList')">取消</button>
@@ -1283,8 +1341,11 @@
                     <div class="form-title">编辑学生</div>
                     <div class="form-body">
                         <input type="hidden" id="editSId">
+                        <div class="form-field"><label>学号</label><input type="text" id="editSStudentNo"></div>
                         <div class="form-field"><label>姓名</label><input type="text" id="editSName"></div>
+                        <div class="form-field"><label>性别</label><select id="editSGender"><option value="男">男</option><option value="女">女</option></select></div>
                         <div class="form-field"><label>年龄</label><input type="number" id="editSAge"></div>
+                        <div class="form-field"><label>在籍信息</label><select id="editSStatus"><option value="在读">在读</option><option value="休学">休学</option><option value="毕业">毕业</option><option value="退学">退学</option></select></div>
                     </div>
                     <div class="form-actions">
                         <button class="btn btn-outline" onclick="showView('studentList')">取消</button>
@@ -1300,8 +1361,11 @@
                     <div class="detail-title">学生详情</div>
                     <div class="detail-body">
                         <div class="detail-row"><div class="detail-label">编号</div><div class="detail-value" id="viewSId"></div></div>
+                        <div class="detail-row"><div class="detail-label">学号</div><div class="detail-value" id="viewSStudentNo"></div></div>
                         <div class="detail-row"><div class="detail-label">姓名</div><div class="detail-value" id="viewSName"></div></div>
+                        <div class="detail-row"><div class="detail-label">性别</div><div class="detail-value" id="viewSGender"></div></div>
                         <div class="detail-row"><div class="detail-label">年龄</div><div class="detail-value" id="viewSAge"></div></div>
+                        <div class="detail-row"><div class="detail-label">在籍信息</div><div class="detail-value" id="viewSStatus"></div></div>
                     </div>
                     <div class="detail-actions">
                         <button class="btn btn-outline" onclick="showView('studentList')">返回列表</button>
@@ -1315,7 +1379,9 @@
                 <div class="content-card">
                     <div class="form-title">新增教师</div>
                     <div class="form-body">
+                        <div class="form-field"><label>工号</label><input type="text" id="addTTeacherNo" placeholder="请输入工号"></div>
                         <div class="form-field"><label>姓名</label><input type="text" id="addTName" placeholder="请输入姓名"></div>
+                        <div class="form-field"><label>性别</label><select id="addTGender"><option value="男">男</option><option value="女">女</option></select></div>
                         <div class="form-field"><label>年龄</label><input type="number" id="addTAge" placeholder="请输入年龄"></div>
                         <div class="form-field"><label>薪资</label><input type="number" step="0.01" id="addTSalary" placeholder="请输入薪资"></div>
                     </div>
@@ -1333,7 +1399,9 @@
                     <div class="form-title">编辑教师</div>
                     <div class="form-body">
                         <input type="hidden" id="editTId">
+                        <div class="form-field"><label>工号</label><input type="text" id="editTTeacherNo"></div>
                         <div class="form-field"><label>姓名</label><input type="text" id="editTName"></div>
+                        <div class="form-field"><label>性别</label><select id="editTGender"><option value="男">男</option><option value="女">女</option></select></div>
                         <div class="form-field"><label>年龄</label><input type="number" id="editTAge"></div>
                         <div class="form-field"><label>薪资</label><input type="number" step="0.01" id="editTSalary"></div>
                     </div>
@@ -1351,12 +1419,121 @@
                     <div class="detail-title">教师详情</div>
                     <div class="detail-body">
                         <div class="detail-row"><div class="detail-label">编号</div><div class="detail-value" id="viewTId"></div></div>
+                        <div class="detail-row"><div class="detail-label">工号</div><div class="detail-value" id="viewTTeacherNo"></div></div>
                         <div class="detail-row"><div class="detail-label">姓名</div><div class="detail-value" id="viewTName"></div></div>
+                        <div class="detail-row"><div class="detail-label">性别</div><div class="detail-value" id="viewTGender"></div></div>
                         <div class="detail-row"><div class="detail-label">年龄</div><div class="detail-value" id="viewTAge"></div></div>
                         <div class="detail-row"><div class="detail-label">薪资</div><div class="detail-value" id="viewTSalary"></div></div>
                     </div>
                     <div class="detail-actions">
                         <button class="btn btn-outline" onclick="showView('teacherList')">返回列表</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="addCourseView" class="view-section" style="display:none">
+            <div class="form-view">
+                <div class="content-card">
+                    <div class="form-title">新增课程</div>
+                    <div class="form-body">
+                        <div class="form-field"><label>课程编号</label><input type="text" id="addCCourseNo" placeholder="请输入课程编号"></div>
+                        <div class="form-field"><label>课程名称</label><input type="text" id="addCName" placeholder="请输入课程名称"></div>
+                        <div class="form-field"><label>学分</label><input type="number" step="0.5" id="addCCredit" placeholder="请输入学分"></div>
+                        <div class="form-field"><label>学时</label><input type="number" id="addCHours" placeholder="请输入学时"></div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-outline" onclick="showView('courseList')">取消</button>
+                        <button class="btn btn-gold" onclick="saveCourse()">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="editCourseView" class="view-section" style="display:none">
+            <div class="form-view">
+                <div class="content-card">
+                    <div class="form-title">编辑课程</div>
+                    <div class="form-body">
+                        <input type="hidden" id="editCId">
+                        <div class="form-field"><label>课程编号</label><input type="text" id="editCCourseNo"></div>
+                        <div class="form-field"><label>课程名称</label><input type="text" id="editCName"></div>
+                        <div class="form-field"><label>学分</label><input type="number" step="0.5" id="editCCredit"></div>
+                        <div class="form-field"><label>学时</label><input type="number" id="editCHours"></div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-outline" onclick="showView('courseList')">取消</button>
+                        <button class="btn btn-gold" onclick="updateCourse()">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="viewCourseView" class="view-section" style="display:none">
+            <div class="detail-view">
+                <div class="content-card">
+                    <div class="detail-title">课程详情</div>
+                    <div class="detail-body">
+                        <div class="detail-row"><div class="detail-label">编号</div><div class="detail-value" id="viewCId"></div></div>
+                        <div class="detail-row"><div class="detail-label">课程编号</div><div class="detail-value" id="viewCCourseNo"></div></div>
+                        <div class="detail-row"><div class="detail-label">课程名称</div><div class="detail-value" id="viewCName"></div></div>
+                        <div class="detail-row"><div class="detail-label">学分</div><div class="detail-value" id="viewCCredit"></div></div>
+                        <div class="detail-row"><div class="detail-label">学时</div><div class="detail-value" id="viewCHours"></div></div>
+                    </div>
+                    <div class="detail-actions">
+                        <button class="btn btn-outline" onclick="showView('courseList')">返回列表</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="addScoreView" class="view-section" style="display:none">
+            <div class="form-view">
+                <div class="content-card">
+                    <div class="form-title">新增成绩</div>
+                    <div class="form-body">
+                        <div class="form-field"><label>学生</label><select id="addScStudentId"></select></div>
+                        <div class="form-field"><label>课程</label><select id="addScCourseId"></select></div>
+                        <div class="form-field"><label>成绩</label><input type="number" step="0.1" id="addScScore" placeholder="请输入成绩"></div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-outline" onclick="showView('scoreList')">取消</button>
+                        <button class="btn btn-gold" onclick="saveScore()">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="editScoreView" class="view-section" style="display:none">
+            <div class="form-view">
+                <div class="content-card">
+                    <div class="form-title">编辑成绩</div>
+                    <div class="form-body">
+                        <input type="hidden" id="editScId">
+                        <div class="form-field"><label>学生</label><select id="editScStudentId"></select></div>
+                        <div class="form-field"><label>课程</label><select id="editScCourseId"></select></div>
+                        <div class="form-field"><label>成绩</label><input type="number" step="0.1" id="editScScore"></div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-outline" onclick="showView('scoreList')">取消</button>
+                        <button class="btn btn-gold" onclick="updateScore()">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="viewScoreView" class="view-section" style="display:none">
+            <div class="detail-view">
+                <div class="content-card">
+                    <div class="detail-title">成绩详情</div>
+                    <div class="detail-body">
+                        <div class="detail-row"><div class="detail-label">编号</div><div class="detail-value" id="viewScId"></div></div>
+                        <div class="detail-row"><div class="detail-label">学生姓名</div><div class="detail-value" id="viewScStudentName"></div></div>
+                        <div class="detail-row"><div class="detail-label">课程名称</div><div class="detail-value" id="viewScCourseName"></div></div>
+                        <div class="detail-row"><div class="detail-label">成绩</div><div class="detail-value" id="viewScScore"></div></div>
+                    </div>
+                    <div class="detail-actions">
+                        <button class="btn btn-outline" onclick="showView('scoreList')">返回列表</button>
                     </div>
                 </div>
             </div>
@@ -1371,6 +1548,8 @@
                 <span class="tech-tag">Annotation</span>
                 <span class="tech-tag">Socket</span>
                 <span class="tech-tag">SPA</span>
+                <span class="tech-tag">Factory</span>
+                <span class="tech-tag">CRUD</span>
             </div>
         </div>
     </div>
@@ -1378,37 +1557,87 @@
 
 <script>
 var DEFAULT_STUDENTS = [
-    {id:1, name:'张三', age:20}, {id:2, name:'李四', age:21},
-    {id:3, name:'王五', age:22}, {id:4, name:'赵六', age:20},
-    {id:5, name:'钱七', age:23}, {id:6, name:'孙八', age:19},
-    {id:7, name:'周九', age:21}, {id:8, name:'吴十', age:22},
-    {id:9, name:'郑一', age:24}, {id:10, name:'冯二', age:20},
-    {id:11, name:'陈三', age:22}, {id:12, name:'褚四', age:21}
+    {id:1, studentNo:'2024001', name:'张三', gender:'男', age:20, status:'在读'},
+    {id:2, studentNo:'2024002', name:'李四', gender:'男', age:21, status:'在读'},
+    {id:3, studentNo:'2024003', name:'王五', gender:'男', age:22, status:'休学'},
+    {id:4, studentNo:'2024004', name:'赵六', gender:'男', age:20, status:'在读'},
+    {id:5, studentNo:'2024005', name:'钱七', gender:'男', age:23, status:'毕业'},
+    {id:6, studentNo:'2024006', name:'孙八', gender:'男', age:19, status:'在读'},
+    {id:7, studentNo:'2024007', name:'周九', gender:'女', age:21, status:'退学'},
+    {id:8, studentNo:'2024008', name:'吴十', gender:'女', age:22, status:'在读'}
 ];
 var DEFAULT_TEACHERS = [
-    {id:1, name:'刘老师', age:35, salary:8000}, {id:2, name:'陈老师', age:40, salary:9500},
-    {id:3, name:'杨老师', age:38, salary:8800}, {id:4, name:'黄老师', age:45, salary:10200},
-    {id:5, name:'林老师', age:33, salary:7500}, {id:6, name:'何老师', age:42, salary:9800},
-    {id:7, name:'罗老师', age:36, salary:8200}
+    {id:1, teacherNo:'T1001', name:'刘老师', gender:'男', age:35, salary:8000},
+    {id:2, teacherNo:'T1002', name:'陈老师', gender:'男', age:40, salary:9500},
+    {id:3, teacherNo:'T1003', name:'杨老师', gender:'女', age:38, salary:8800},
+    {id:4, teacherNo:'T1004', name:'黄老师', gender:'男', age:45, salary:10200},
+    {id:5, teacherNo:'T1005', name:'林老师', gender:'女', age:33, salary:7500}
+];
+var DEFAULT_COURSES = [
+    {id:1, courseNo:'C001', name:'高等数学', credit:4.0, hours:64},
+    {id:2, courseNo:'C002', name:'线性代数', credit:3.0, hours:48},
+    {id:3, courseNo:'C003', name:'大学英语', credit:3.5, hours:56},
+    {id:4, courseNo:'C004', name:'Java程序设计', credit:4.0, hours:64},
+    {id:5, courseNo:'C005', name:'数据结构', credit:3.5, hours:56}
+];
+var DEFAULT_SCORES = [
+    {id:1, studentId:1, courseId:1, score:85.0, studentName:'张三', courseName:'高等数学'},
+    {id:2, studentId:1, courseId:4, score:92.0, studentName:'张三', courseName:'Java程序设计'},
+    {id:3, studentId:2, courseId:1, score:78.0, studentName:'李四', courseName:'高等数学'},
+    {id:4, studentId:2, courseId:2, score:88.0, studentName:'李四', courseName:'线性代数'},
+    {id:5, studentId:3, courseId:3, score:90.0, studentName:'王五', courseName:'大学英语'},
+    {id:6, studentId:3, courseId:5, score:82.0, studentName:'王五', courseName:'数据结构'},
+    {id:7, studentId:4, courseId:4, score:95.0, studentName:'赵六', courseName:'Java程序设计'},
+    {id:8, studentId:5, courseId:1, score:76.0, studentName:'钱七', courseName:'高等数学'},
+    {id:9, studentId:5, courseId:5, score:88.0, studentName:'钱七', courseName:'数据结构'},
+    {id:10, studentId:6, courseId:2, score:91.0, studentName:'孙八', courseName:'线性代数'},
+    {id:11, studentId:7, courseId:3, score:85.0, studentName:'周九', courseName:'大学英语'},
+    {id:12, studentId:8, courseId:4, score:89.0, studentName:'吴十', courseName:'Java程序设计'}
 ];
 
 function loadData() {
     try {
         var s = localStorage.getItem('stu_students');
         var t = localStorage.getItem('stu_teachers');
+        var c = localStorage.getItem('stu_courses');
+        var sc = localStorage.getItem('stu_scores');
         var si = localStorage.getItem('stu_nextSId');
         var ti = localStorage.getItem('stu_nextTId');
-        if (s) return { students: JSON.parse(s), teachers: JSON.parse(t || '[]'), nextSId: parseInt(si) || 13, nextTId: parseInt(ti) || 8 };
+        var ci = localStorage.getItem('stu_nextCId');
+        var sci = localStorage.getItem('stu_nextScId');
+        if (s) return {
+            students: JSON.parse(s),
+            teachers: JSON.parse(t || '[]'),
+            courses: JSON.parse(c || '[]'),
+            scores: JSON.parse(sc || '[]'),
+            nextSId: parseInt(si) || 9,
+            nextTId: parseInt(ti) || 6,
+            nextCId: parseInt(ci) || 6,
+            nextScId: parseInt(sci) || 13
+        };
     } catch(e) {}
-    return { students: DEFAULT_STUDENTS.slice(), teachers: DEFAULT_TEACHERS.slice(), nextSId: 13, nextTId: 8 };
+    return {
+        students: DEFAULT_STUDENTS.slice(),
+        teachers: DEFAULT_TEACHERS.slice(),
+        courses: DEFAULT_COURSES.slice(),
+        scores: DEFAULT_SCORES.slice(),
+        nextSId: 9,
+        nextTId: 6,
+        nextCId: 6,
+        nextScId: 13
+    };
 }
 
 function saveData() {
     try {
         localStorage.setItem('stu_students', JSON.stringify(students));
         localStorage.setItem('stu_teachers', JSON.stringify(teachers));
+        localStorage.setItem('stu_courses', JSON.stringify(courses));
+        localStorage.setItem('stu_scores', JSON.stringify(scores));
         localStorage.setItem('stu_nextSId', String(nextSId));
         localStorage.setItem('stu_nextTId', String(nextTId));
+        localStorage.setItem('stu_nextCId', String(nextCId));
+        localStorage.setItem('stu_nextScId', String(nextScId));
     } catch(e) {}
 }
 
@@ -1416,8 +1645,12 @@ function resetData() {
     showConfirm('确定重置所有数据为初始状态吗？此操作不可撤销。', function(){
         students = DEFAULT_STUDENTS.slice();
         teachers = DEFAULT_TEACHERS.slice();
-        nextSId = 13;
-        nextTId = 8;
+        courses = DEFAULT_COURSES.slice();
+        scores = DEFAULT_SCORES.slice();
+        nextSId = 9;
+        nextTId = 6;
+        nextCId = 6;
+        nextScId = 13;
         saveData();
         showToast('数据已重置为初始状态', 'success');
         showView('studentList');
@@ -1427,9 +1660,13 @@ function resetData() {
 var loaded = loadData();
 var students = loaded.students;
 var teachers = loaded.teachers;
+var courses = loaded.courses;
+var scores = loaded.scores;
 var nextSId = loaded.nextSId;
 var nextTId = loaded.nextTId;
-var sPage = 1, tPage = 1, gPage = 1, gEntity = 'student';
+var nextCId = loaded.nextCId;
+var nextScId = loaded.nextScId;
+var sPage = 1, tPage = 1, cPage = 1, scPage = 1, gPage = 1, gEntity = 'student';
 var PAGE_SIZE = 5;
 var pendingAction = null;
 var currentView = 'studentList';
@@ -1543,36 +1780,56 @@ function animateValue(el, start, end, duration, suffix) {
 function updateStats() {
     var sc = students.length;
     var tc = teachers.length;
+    var cc = courses.length;
+    var scc = scores.length;
     var avgAge = students.length ? students.reduce(function(s,x){return s+x.age},0)/students.length : 0;
     var avgSal = teachers.length ? teachers.reduce(function(s,x){return s+x.salary},0)/teachers.length/1000 : 0;
 
     animateValue(document.getElementById('statStudentCount'), 0, sc, 800, '');
     animateValue(document.getElementById('statTeacherCount'), 0, tc, 800, '');
+    animateValue(document.getElementById('statCourseCount'), 0, cc, 800, '');
+    animateValue(document.getElementById('statScoreCount'), 0, scc, 800, '');
     animateValue(document.getElementById('statAvgAge'), 0, parseFloat(avgAge.toFixed(1)), 800, '');
     animateValue(document.getElementById('statAvgSalary'), 0, parseFloat(avgSal.toFixed(1)), 800, 'K');
 }
 
 function showView(name) {
-    var views = ['studentListView','teacherListView','genericListView','addStudentView','editStudentView','viewStudentView','addTeacherView','editTeacherView','viewTeacherView'];
+    var views = ['studentListView','teacherListView','courseListView','scoreListView','genericListView',
+        'addStudentView','editStudentView','viewStudentView',
+        'addTeacherView','editTeacherView','viewTeacherView',
+        'addCourseView','editCourseView','viewCourseView',
+        'addScoreView','editScoreView','viewScoreView'];
     var viewMap = {
         studentList: 'studentListView',
         teacherList: 'teacherListView',
+        courseList: 'courseListView',
+        scoreList: 'scoreListView',
         genericList: 'genericListView',
         addStudent: 'addStudentView',
         editStudent: 'editStudentView',
         viewStudent: 'viewStudentView',
         addTeacher: 'addTeacherView',
         editTeacher: 'editTeacherView',
-        viewTeacher: 'viewTeacherView'
+        viewTeacher: 'viewTeacherView',
+        addCourse: 'addCourseView',
+        editCourse: 'editCourseView',
+        viewCourse: 'viewCourseView',
+        addScore: 'addScoreView',
+        editScore: 'editScoreView',
+        viewScore: 'viewScoreView'
     };
     var navMap = {
         studentList: 'navStudent',
         teacherList: 'navTeacher',
+        courseList: 'navCourse',
+        scoreList: 'navScore',
         genericList: 'navGeneric'
     };
     var mNavMap = {
         studentList: 'mNavStudent',
         teacherList: 'mNavTeacher',
+        courseList: 'mNavCourse',
+        scoreList: 'mNavScore',
         genericList: 'mNavGeneric'
     };
 
@@ -1582,7 +1839,7 @@ function showView(name) {
     var prevEl = prevView ? document.getElementById(viewMap[prevView]) : null;
     var nextEl = document.getElementById(viewMap[name]);
 
-    var listViews = ['studentList','teacherList','genericList'];
+    var listViews = ['studentList','teacherList','courseList','scoreList','genericList'];
     var prevIsList = listViews.indexOf(prevView) !== -1;
     var nextIsList = listViews.indexOf(name) !== -1;
 
@@ -1612,7 +1869,10 @@ function showView(name) {
 
     if (name === 'studentList') renderStudentTable();
     else if (name === 'teacherList') renderTeacherTable();
+    else if (name === 'courseList') renderCourseTable();
+    else if (name === 'scoreList') renderScoreTable();
     else if (name === 'genericList') renderGenericTable();
+    else if (name === 'addScore') populateScoreDropdowns('addScStudentId', 'addScCourseId');
     updateStats();
     drawCharts();
 }
@@ -1631,13 +1891,17 @@ function onTeacherSearch() {
 function getFilteredStudents() {
     if (!studentSearchKey) return students;
     return students.filter(function(s) {
-        return s.name.toLowerCase().indexOf(studentSearchKey) !== -1 || String(s.id).indexOf(studentSearchKey) !== -1;
+        return s.name.toLowerCase().indexOf(studentSearchKey) !== -1
+            || String(s.id).indexOf(studentSearchKey) !== -1
+            || s.studentNo.toLowerCase().indexOf(studentSearchKey) !== -1;
     });
 }
 function getFilteredTeachers() {
     if (!teacherSearchKey) return teachers;
     return teachers.filter(function(t) {
-        return t.name.toLowerCase().indexOf(teacherSearchKey) !== -1 || String(t.id).indexOf(teacherSearchKey) !== -1;
+        return t.name.toLowerCase().indexOf(teacherSearchKey) !== -1
+            || String(t.id).indexOf(teacherSearchKey) !== -1
+            || t.teacherNo.toLowerCase().indexOf(teacherSearchKey) !== -1;
     });
 }
 
@@ -1665,10 +1929,10 @@ function renderStudentTable() {
     var pageData = data.slice(start, start + PAGE_SIZE);
 
     if (pageData.length === 0) {
-        tbody.innerHTML = '<tr class="empty-row"><td colspan="4"><div class="empty-state">' + emptyStudentSvg + '<p>暂无学生数据</p></div></td></tr>';
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="7"><div class="empty-state">' + emptyStudentSvg + '<p>暂无学生数据</p></div></td></tr>';
     } else {
         tbody.innerHTML = pageData.map(function(s){
-            return '<tr><td class="td-id">#' + s.id + '</td><td class="td-name">' + s.name + '</td><td class="td-age">' + s.age + '</td>'
+            return '<tr><td class="td-id">#' + s.id + '</td><td>' + s.studentNo + '</td><td class="td-name">' + s.name + '</td><td>' + s.gender + '</td><td class="td-age">' + s.age + '</td><td>' + s.status + '</td>'
                 + '<td><div class="td-actions">'
                 + '<button class="btn btn-sm btn-view" onclick="viewStudent('+s.id+')">查看</button>'
                 + '<button class="btn btn-sm btn-edit" onclick="editStudent('+s.id+')">编辑</button>'
@@ -1690,10 +1954,10 @@ function renderTeacherTable() {
     var pageData = data.slice(start, start + PAGE_SIZE);
 
     if (pageData.length === 0) {
-        tbody.innerHTML = '<tr class="empty-row"><td colspan="5"><div class="empty-state">' + emptyTeacherSvg + '<p>暂无教师数据</p></div></td></tr>';
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="7"><div class="empty-state">' + emptyTeacherSvg + '<p>暂无教师数据</p></div></td></tr>';
     } else {
         tbody.innerHTML = pageData.map(function(t){
-            return '<tr><td class="td-id">#' + t.id + '</td><td class="td-name">' + t.name + '</td><td class="td-age">' + t.age + '</td><td class="td-salary">¥' + t.salary.toLocaleString() + '</td>'
+            return '<tr><td class="td-id">#' + t.id + '</td><td>' + t.teacherNo + '</td><td class="td-name">' + t.name + '</td><td>' + t.gender + '</td><td class="td-age">' + t.age + '</td><td class="td-salary">¥' + t.salary.toLocaleString() + '</td>'
                 + '<td><div class="td-actions">'
                 + '<button class="btn btn-sm btn-view" onclick="viewTeacher('+t.id+')">查看</button>'
                 + '<button class="btn btn-sm btn-edit" onclick="editTeacher('+t.id+')">编辑</button>'
@@ -1705,11 +1969,66 @@ function renderTeacherTable() {
     renderPagination('teacherPagination', 'teacherPageInfo', tPage, totalPages, total, start + 1, Math.min(start + PAGE_SIZE, total), function(p){ tPage = p; renderTeacherTable(); });
 }
 
+function renderCourseTable() {
+    var tbody = document.getElementById('courseTableBody');
+    var total = courses.length;
+    var totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    if (cPage > totalPages) cPage = totalPages;
+    var start = (cPage - 1) * PAGE_SIZE;
+    var pageData = courses.slice(start, start + PAGE_SIZE);
+
+    if (pageData.length === 0) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="6"><div class="empty-state">' + emptyGenericSvg + '<p>暂无课程数据</p></div></td></tr>';
+    } else {
+        tbody.innerHTML = pageData.map(function(c){
+            return '<tr><td class="td-id">#' + c.id + '</td><td>' + c.courseNo + '</td><td class="td-name">' + c.name + '</td><td>' + c.credit + '</td><td>' + c.hours + '</td>'
+                + '<td><div class="td-actions">'
+                + '<button class="btn btn-sm btn-view" onclick="viewCourse('+c.id+')">查看</button>'
+                + '<button class="btn btn-sm btn-edit" onclick="editCourse('+c.id+')">编辑</button>'
+                + '<button class="btn btn-sm btn-del" onclick="deleteCourse('+c.id+')">删除</button>'
+                + '</div></td></tr>';
+        }).join('');
+        applyRowAnimation(tbody);
+    }
+    renderPagination('coursePagination', 'coursePageInfo', cPage, totalPages, total, start + 1, Math.min(start + PAGE_SIZE, total), function(p){ cPage = p; renderCourseTable(); });
+}
+
+function renderScoreTable() {
+    var tbody = document.getElementById('scoreTableBody');
+    var total = scores.length;
+    var totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    if (scPage > totalPages) scPage = totalPages;
+    var start = (scPage - 1) * PAGE_SIZE;
+    var pageData = scores.slice(start, start + PAGE_SIZE);
+
+    if (pageData.length === 0) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="5"><div class="empty-state">' + emptyGenericSvg + '<p>暂无成绩数据</p></div></td></tr>';
+    } else {
+        tbody.innerHTML = pageData.map(function(sc){
+            return '<tr><td class="td-id">#' + sc.id + '</td><td class="td-name">' + sc.studentName + '</td><td class="td-name">' + sc.courseName + '</td><td>' + sc.score + '</td>'
+                + '<td><div class="td-actions">'
+                + '<button class="btn btn-sm btn-view" onclick="viewScore('+sc.id+')">查看</button>'
+                + '<button class="btn btn-sm btn-edit" onclick="editScore('+sc.id+')">编辑</button>'
+                + '<button class="btn btn-sm btn-del" onclick="deleteScore('+sc.id+')">删除</button>'
+                + '</div></td></tr>';
+        }).join('');
+        applyRowAnimation(tbody);
+    }
+    renderPagination('scorePagination', 'scorePageInfo', scPage, totalPages, total, start + 1, Math.min(start + PAGE_SIZE, total), function(p){ scPage = p; renderScoreTable(); });
+}
+
 function renderGenericTable() {
-    var data = gEntity === 'student' ? students : teachers;
-    var cols = gEntity === 'student'
-        ? [{label:'编号',field:'id',cls:'td-id'},{label:'姓名',field:'name',cls:'td-name'},{label:'年龄',field:'age',cls:'td-age'}]
-        : [{label:'编号',field:'id',cls:'td-id'},{label:'姓名',field:'name',cls:'td-name'},{label:'年龄',field:'age',cls:'td-age'},{label:'薪资',field:'salary',cls:'td-salary'}];
+    var data, cols;
+    if (gEntity === 'student') {
+        data = students;
+        cols = [{label:'编号',field:'id',cls:'td-id'},{label:'学号',field:'studentNo',cls:''},{label:'姓名',field:'name',cls:'td-name'},{label:'性别',field:'gender',cls:''},{label:'年龄',field:'age',cls:'td-age'},{label:'在籍信息',field:'status',cls:''}];
+    } else if (gEntity === 'teacher') {
+        data = teachers;
+        cols = [{label:'编号',field:'id',cls:'td-id'},{label:'工号',field:'teacherNo',cls:''},{label:'姓名',field:'name',cls:'td-name'},{label:'性别',field:'gender',cls:''},{label:'年龄',field:'age',cls:'td-age'},{label:'薪资',field:'salary',cls:'td-salary'}];
+    } else {
+        data = courses;
+        cols = [{label:'编号',field:'id',cls:'td-id'},{label:'课程编号',field:'courseNo',cls:''},{label:'课程名称',field:'name',cls:'td-name'},{label:'学分',field:'credit',cls:''},{label:'学时',field:'hours',cls:''}];
+    }
 
     document.getElementById('genericThead').innerHTML = '<tr>' + cols.map(function(c){ return '<th>'+c.label+'</th>'; }).join('') + '</tr>';
 
@@ -1777,19 +2096,28 @@ function switchGeneric(entity) {
     gPage = 1;
     document.getElementById('genericBtnStudent').classList.toggle('active', entity === 'student');
     document.getElementById('genericBtnTeacher').classList.toggle('active', entity === 'teacher');
+    document.getElementById('genericBtnCourse').classList.toggle('active', entity === 'course');
     renderGenericTable();
 }
 
+// ===== Student CRUD =====
 function saveStudent() {
+    var studentNo = document.getElementById('addSStudentNo').value.trim();
     var name = document.getElementById('addSName').value.trim();
+    var gender = document.getElementById('addSGender').value;
     var age = parseInt(document.getElementById('addSAge').value);
+    var status = document.getElementById('addSStatus').value;
+    if (!studentNo) { showToast('请输入学号', 'error'); return; }
     if (!name) { showToast('请输入姓名', 'error'); return; }
     if (isNaN(age) || age < 1) { showToast('请输入有效年龄', 'error'); return; }
-    students.push({id: nextSId++, name: name, age: age});
+    students.push({id: nextSId++, studentNo: studentNo, name: name, gender: gender, age: age, status: status});
     saveData();
     showToast('新增学生成功', 'success');
+    document.getElementById('addSStudentNo').value = '';
     document.getElementById('addSName').value = '';
+    document.getElementById('addSGender').value = '男';
     document.getElementById('addSAge').value = '';
+    document.getElementById('addSStatus').value = '在读';
     showView('studentList');
 }
 
@@ -1798,17 +2126,24 @@ function editStudent(id) {
     if (!s) return;
     showView('editStudent');
     document.getElementById('editSId').value = s.id;
+    document.getElementById('editSStudentNo').value = s.studentNo;
     document.getElementById('editSName').value = s.name;
+    document.getElementById('editSGender').value = s.gender;
     document.getElementById('editSAge').value = s.age;
+    document.getElementById('editSStatus').value = s.status;
 }
 
 function updateStudent() {
     var id = parseInt(document.getElementById('editSId').value);
+    var studentNo = document.getElementById('editSStudentNo').value.trim();
     var name = document.getElementById('editSName').value.trim();
+    var gender = document.getElementById('editSGender').value;
     var age = parseInt(document.getElementById('editSAge').value);
+    var status = document.getElementById('editSStatus').value;
+    if (!studentNo) { showToast('请输入学号', 'error'); return; }
     if (!name) { showToast('请输入姓名', 'error'); return; }
     var s = students.find(function(x){ return x.id === id; });
-    if (s) { s.name = name; s.age = age; }
+    if (s) { s.studentNo = studentNo; s.name = name; s.gender = gender; s.age = age; s.status = status; }
     saveData();
     showToast('修改学生成功', 'success');
     showView('studentList');
@@ -1819,8 +2154,11 @@ function viewStudent(id) {
     if (!s) return;
     showView('viewStudent');
     document.getElementById('viewSId').textContent = '#' + s.id;
+    document.getElementById('viewSStudentNo').textContent = s.studentNo;
     document.getElementById('viewSName').textContent = s.name;
+    document.getElementById('viewSGender').textContent = s.gender;
     document.getElementById('viewSAge').textContent = s.age;
+    document.getElementById('viewSStatus').textContent = s.status;
 }
 
 function deleteStudent(id) {
@@ -1835,17 +2173,23 @@ function deleteStudent(id) {
     });
 }
 
+// ===== Teacher CRUD =====
 function saveTeacher() {
+    var teacherNo = document.getElementById('addTTeacherNo').value.trim();
     var name = document.getElementById('addTName').value.trim();
+    var gender = document.getElementById('addTGender').value;
     var age = parseInt(document.getElementById('addTAge').value);
     var salary = parseFloat(document.getElementById('addTSalary').value);
+    if (!teacherNo) { showToast('请输入工号', 'error'); return; }
     if (!name) { showToast('请输入姓名', 'error'); return; }
     if (isNaN(age) || age < 1) { showToast('请输入有效年龄', 'error'); return; }
     if (isNaN(salary) || salary < 0) { showToast('请输入有效薪资', 'error'); return; }
-    teachers.push({id: nextTId++, name: name, age: age, salary: salary});
+    teachers.push({id: nextTId++, teacherNo: teacherNo, name: name, gender: gender, age: age, salary: salary});
     saveData();
     showToast('新增教师成功', 'success');
+    document.getElementById('addTTeacherNo').value = '';
     document.getElementById('addTName').value = '';
+    document.getElementById('addTGender').value = '男';
     document.getElementById('addTAge').value = '';
     document.getElementById('addTSalary').value = '';
     showView('teacherList');
@@ -1856,22 +2200,39 @@ function editTeacher(id) {
     if (!t) return;
     showView('editTeacher');
     document.getElementById('editTId').value = t.id;
+    document.getElementById('editTTeacherNo').value = t.teacherNo;
     document.getElementById('editTName').value = t.name;
+    document.getElementById('editTGender').value = t.gender;
     document.getElementById('editTAge').value = t.age;
     document.getElementById('editTSalary').value = t.salary;
 }
 
 function updateTeacher() {
     var id = parseInt(document.getElementById('editTId').value);
+    var teacherNo = document.getElementById('editTTeacherNo').value.trim();
     var name = document.getElementById('editTName').value.trim();
+    var gender = document.getElementById('editTGender').value;
     var age = parseInt(document.getElementById('editTAge').value);
     var salary = parseFloat(document.getElementById('editTSalary').value);
+    if (!teacherNo) { showToast('请输入工号', 'error'); return; }
     if (!name) { showToast('请输入姓名', 'error'); return; }
     var t = teachers.find(function(x){ return x.id === id; });
-    if (t) { t.name = name; t.age = age; t.salary = salary; }
+    if (t) { t.teacherNo = teacherNo; t.name = name; t.gender = gender; t.age = age; t.salary = salary; }
     saveData();
     showToast('修改教师成功', 'success');
     showView('teacherList');
+}
+
+function viewTeacher(id) {
+    var t = teachers.find(function(x){ return x.id === id; });
+    if (!t) return;
+    showView('viewTeacher');
+    document.getElementById('viewTId').textContent = '#' + t.id;
+    document.getElementById('viewTTeacherNo').textContent = t.teacherNo;
+    document.getElementById('viewTName').textContent = t.name;
+    document.getElementById('viewTGender').textContent = t.gender;
+    document.getElementById('viewTAge').textContent = t.age;
+    document.getElementById('viewTSalary').textContent = '¥' + t.salary.toLocaleString();
 }
 
 function deleteTeacher(id) {
@@ -1886,23 +2247,192 @@ function deleteTeacher(id) {
     });
 }
 
+// ===== Course CRUD =====
+function saveCourse() {
+    var courseNo = document.getElementById('addCCourseNo').value.trim();
+    var name = document.getElementById('addCName').value.trim();
+    var credit = parseFloat(document.getElementById('addCCredit').value);
+    var hours = parseInt(document.getElementById('addCHours').value);
+    if (!courseNo) { showToast('请输入课程编号', 'error'); return; }
+    if (!name) { showToast('请输入课程名称', 'error'); return; }
+    if (isNaN(credit) || credit < 0) { showToast('请输入有效学分', 'error'); return; }
+    if (isNaN(hours) || hours < 0) { showToast('请输入有效学时', 'error'); return; }
+    courses.push({id: nextCId++, courseNo: courseNo, name: name, credit: credit, hours: hours});
+    saveData();
+    showToast('新增课程成功', 'success');
+    document.getElementById('addCCourseNo').value = '';
+    document.getElementById('addCName').value = '';
+    document.getElementById('addCCredit').value = '';
+    document.getElementById('addCHours').value = '';
+    showView('courseList');
+}
+
+function editCourse(id) {
+    var c = courses.find(function(x){ return x.id === id; });
+    if (!c) return;
+    showView('editCourse');
+    document.getElementById('editCId').value = c.id;
+    document.getElementById('editCCourseNo').value = c.courseNo;
+    document.getElementById('editCName').value = c.name;
+    document.getElementById('editCCredit').value = c.credit;
+    document.getElementById('editCHours').value = c.hours;
+}
+
+function updateCourse() {
+    var id = parseInt(document.getElementById('editCId').value);
+    var courseNo = document.getElementById('editCCourseNo').value.trim();
+    var name = document.getElementById('editCName').value.trim();
+    var credit = parseFloat(document.getElementById('editCCredit').value);
+    var hours = parseInt(document.getElementById('editCHours').value);
+    if (!courseNo) { showToast('请输入课程编号', 'error'); return; }
+    if (!name) { showToast('请输入课程名称', 'error'); return; }
+    var c = courses.find(function(x){ return x.id === id; });
+    if (c) { c.courseNo = courseNo; c.name = name; c.credit = credit; c.hours = hours; }
+    saveData();
+    showToast('修改课程成功', 'success');
+    showView('courseList');
+}
+
+function viewCourse(id) {
+    var c = courses.find(function(x){ return x.id === id; });
+    if (!c) return;
+    showView('viewCourse');
+    document.getElementById('viewCId').textContent = '#' + c.id;
+    document.getElementById('viewCCourseNo').textContent = c.courseNo;
+    document.getElementById('viewCName').textContent = c.name;
+    document.getElementById('viewCCredit').textContent = c.credit;
+    document.getElementById('viewCHours').textContent = c.hours;
+}
+
+function deleteCourse(id) {
+    var c = courses.find(function(x){ return x.id === id; });
+    showConfirm('确定删除课程「' + (c ? c.name : '') + '」吗？此操作不可撤销。', function(){
+        courses = courses.filter(function(x){ return x.id !== id; });
+        saveData();
+        showToast('删除课程成功', 'success');
+        renderCourseTable();
+        updateStats();
+        drawCharts();
+    });
+}
+
+// ===== Score CRUD =====
+function populateScoreDropdowns(studentSelectId, courseSelectId) {
+    var sSel = document.getElementById(studentSelectId);
+    var cSel = document.getElementById(courseSelectId);
+    sSel.innerHTML = '<option value="">请选择学生</option>' + students.map(function(s){
+        return '<option value="'+s.id+'">'+s.studentNo+' - '+s.name+'</option>';
+    }).join('');
+    cSel.innerHTML = '<option value="">请选择课程</option>' + courses.map(function(c){
+        return '<option value="'+c.id+'">'+c.courseNo+' - '+c.name+'</option>';
+    }).join('');
+}
+
+function saveScore() {
+    var studentId = parseInt(document.getElementById('addScStudentId').value);
+    var courseId = parseInt(document.getElementById('addScCourseId').value);
+    var score = parseFloat(document.getElementById('addScScore').value);
+    if (!studentId) { showToast('请选择学生', 'error'); return; }
+    if (!courseId) { showToast('请选择课程', 'error'); return; }
+    if (isNaN(score) || score < 0 || score > 100) { showToast('请输入有效成绩(0-100)', 'error'); return; }
+    var student = students.find(function(s){ return s.id === studentId; });
+    var course = courses.find(function(c){ return c.id === courseId; });
+    scores.push({
+        id: nextScId++,
+        studentId: studentId,
+        courseId: courseId,
+        score: score,
+        studentName: student ? student.name : '',
+        courseName: course ? course.name : ''
+    });
+    saveData();
+    showToast('新增成绩成功', 'success');
+    document.getElementById('addScScore').value = '';
+    showView('scoreList');
+}
+
+function editScore(id) {
+    var sc = scores.find(function(x){ return x.id === id; });
+    if (!sc) return;
+    showView('editScore');
+    populateScoreDropdowns('editScStudentId', 'editScCourseId');
+    document.getElementById('editScId').value = sc.id;
+    document.getElementById('editScStudentId').value = sc.studentId;
+    document.getElementById('editScCourseId').value = sc.courseId;
+    document.getElementById('editScScore').value = sc.score;
+}
+
+function updateScore() {
+    var id = parseInt(document.getElementById('editScId').value);
+    var studentId = parseInt(document.getElementById('editScStudentId').value);
+    var courseId = parseInt(document.getElementById('editScCourseId').value);
+    var score = parseFloat(document.getElementById('editScScore').value);
+    if (!studentId) { showToast('请选择学生', 'error'); return; }
+    if (!courseId) { showToast('请选择课程', 'error'); return; }
+    if (isNaN(score) || score < 0 || score > 100) { showToast('请输入有效成绩(0-100)', 'error'); return; }
+    var student = students.find(function(s){ return s.id === studentId; });
+    var course = courses.find(function(c){ return c.id === courseId; });
+    var sc = scores.find(function(x){ return x.id === id; });
+    if (sc) {
+        sc.studentId = studentId;
+        sc.courseId = courseId;
+        sc.score = score;
+        sc.studentName = student ? student.name : '';
+        sc.courseName = course ? course.name : '';
+    }
+    saveData();
+    showToast('修改成绩成功', 'success');
+    showView('scoreList');
+}
+
+function viewScore(id) {
+    var sc = scores.find(function(x){ return x.id === id; });
+    if (!sc) return;
+    showView('viewScore');
+    document.getElementById('viewScId').textContent = '#' + sc.id;
+    document.getElementById('viewScStudentName').textContent = sc.studentName;
+    document.getElementById('viewScCourseName').textContent = sc.courseName;
+    document.getElementById('viewScScore').textContent = sc.score;
+}
+
+function deleteScore(id) {
+    var sc = scores.find(function(x){ return x.id === id; });
+    showConfirm('确定删除成绩记录「' + (sc ? sc.studentName + ' - ' + sc.courseName : '') + '」吗？此操作不可撤销。', function(){
+        scores = scores.filter(function(x){ return x.id !== id; });
+        saveData();
+        showToast('删除成绩成功', 'success');
+        renderScoreTable();
+        updateStats();
+        drawCharts();
+    });
+}
+
 document.getElementById('loginPass').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
 document.getElementById('loginUser').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
 
-function viewTeacher(id) {
-    var t = teachers.find(function(x){ return x.id === id; });
-    if (!t) return;
-    showView('viewTeacher');
-    document.getElementById('viewTId').textContent = '#' + t.id;
-    document.getElementById('viewTName').textContent = t.name;
-    document.getElementById('viewTAge').textContent = t.age;
-    document.getElementById('viewTSalary').textContent = '¥' + t.salary.toLocaleString();
-}
-
 function exportCSV(type) {
-    var data = type === 'student' ? students : teachers;
-    var headers = type === 'student' ? ['编号','姓名','年龄'] : ['编号','姓名','年龄','薪资'];
-    var fields = type === 'student' ? ['id','name','age'] : ['id','name','age','salary'];
+    var data, headers, fields, fileName;
+    if (type === 'student') {
+        data = students;
+        headers = ['编号','学号','姓名','性别','年龄','在籍信息'];
+        fields = ['id','studentNo','name','gender','age','status'];
+        fileName = '学生信息';
+    } else if (type === 'teacher') {
+        data = teachers;
+        headers = ['编号','工号','姓名','性别','年龄','薪资'];
+        fields = ['id','teacherNo','name','gender','age','salary'];
+        fileName = '教师信息';
+    } else if (type === 'course') {
+        data = courses;
+        headers = ['编号','课程编号','课程名称','学分','学时'];
+        fields = ['id','courseNo','name','credit','hours'];
+        fileName = '课程信息';
+    } else if (type === 'score') {
+        data = scores;
+        headers = ['编号','学生姓名','课程名称','成绩'];
+        fields = ['id','studentName','courseName','score'];
+        fileName = '成绩信息';
+    }
     var BOM = '\uFEFF';
     var csv = BOM + headers.join(',') + '\n';
     data.forEach(function(item){
@@ -1912,7 +2442,7 @@ function exportCSV(type) {
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
     a.href = url;
-    a.download = (type === 'student' ? '学生信息' : '教师信息') + '.csv';
+    a.download = fileName + '.csv';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -1924,10 +2454,12 @@ document.addEventListener('keydown', function(e){
     if (e.key === 'Escape') {
         if (document.getElementById('confirmModal').classList.contains('show')) {
             closeModal();
-        } else if (currentView && currentView !== 'studentList' && currentView !== 'teacherList' && currentView !== 'genericList') {
+        } else if (currentView && currentView !== 'studentList' && currentView !== 'teacherList' && currentView !== 'courseList' && currentView !== 'scoreList' && currentView !== 'genericList') {
             var backMap = {
                 addStudent: 'studentList', editStudent: 'studentList', viewStudent: 'studentList',
-                addTeacher: 'teacherList', editTeacher: 'teacherList', viewTeacher: 'teacherList'
+                addTeacher: 'teacherList', editTeacher: 'teacherList', viewTeacher: 'teacherList',
+                addCourse: 'courseList', editCourse: 'courseList', viewCourse: 'courseList',
+                addScore: 'scoreList', editScore: 'scoreList', viewScore: 'scoreList'
             };
             if (backMap[currentView]) showView(backMap[currentView]);
         }

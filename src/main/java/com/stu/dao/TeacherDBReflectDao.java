@@ -59,6 +59,29 @@ public class TeacherDBReflectDao implements TeacherDao {
     }
 
     @Override
+    public List<Teacher> findByName(String name) {
+        List<Teacher> list = new ArrayList<>();
+        String sql = "SELECT * FROM teacher WHERE name LIKE ? ORDER BY id ASC";
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            conn = DBConnection.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, "%" + name + "%");
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                list.add(mapRow(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DBConnection.close(conn, pstmt, rs);
+        }
+        return list;
+    }
+
+    @Override
     public Teacher findById(Integer id) {
         String sql = DBReflectUtil.generateSelectByIdSQL(Teacher.class);
         Connection conn = null;
@@ -158,6 +181,7 @@ public class TeacherDBReflectDao implements TeacherDao {
         Teacher t = new Teacher();
         t.setId(rs.getInt("id"));
         t.setName(rs.getString("name"));
+        t.setGender(rs.getString("gender"));
         t.setAge(rs.getInt("age"));
         t.setSalary(rs.getDouble("salary"));
         return t;

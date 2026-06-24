@@ -47,6 +47,16 @@ public class TeacherRemoteDao implements TeacherDao {
     }
 
     @Override
+    public List<Teacher> findByName(String name) {
+        JSONObject req = new JSONObject();
+        req.put("command", "findByName");
+        req.put("entity", "teacher");
+        req.put("name", name);
+        JSONObject resp = sendRequest(req);
+        return parseTeacherList(resp);
+    }
+
+    @Override
     public Teacher findById(Integer id) {
         JSONObject req = new JSONObject();
         req.put("command", "findById");
@@ -77,6 +87,7 @@ public class TeacherRemoteDao implements TeacherDao {
         req.put("command", "insert");
         req.put("entity", "teacher");
         req.put("name", teacher.getName());
+        req.put("gender", teacher.getGender());
         req.put("age", teacher.getAge());
         req.put("salary", teacher.getSalary());
         sendRequest(req);
@@ -89,6 +100,7 @@ public class TeacherRemoteDao implements TeacherDao {
         req.put("entity", "teacher");
         req.put("id", teacher.getId());
         req.put("name", teacher.getName());
+        req.put("gender", teacher.getGender());
         req.put("age", teacher.getAge());
         req.put("salary", teacher.getSalary());
         sendRequest(req);
@@ -134,6 +146,7 @@ public class TeacherRemoteDao implements TeacherDao {
         Teacher t = new Teacher();
         t.setId(obj.getInt("id"));
         t.setName(obj.getString("name"));
+        t.setGender(obj.optString("gender", "男"));
         t.setAge(obj.getInt("age"));
         t.setSalary(obj.getDouble("salary"));
         return t;

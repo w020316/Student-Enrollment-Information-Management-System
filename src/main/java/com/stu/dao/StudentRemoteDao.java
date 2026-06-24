@@ -47,6 +47,16 @@ public class StudentRemoteDao implements StudentDao {
     }
 
     @Override
+    public List<Student> findByName(String name) {
+        JSONObject req = new JSONObject();
+        req.put("command", "findByName");
+        req.put("entity", "student");
+        req.put("name", name);
+        JSONObject resp = sendRequest(req);
+        return parseStudentList(resp);
+    }
+
+    @Override
     public Student findById(Integer id) {
         JSONObject req = new JSONObject();
         req.put("command", "findById");
@@ -77,7 +87,9 @@ public class StudentRemoteDao implements StudentDao {
         req.put("command", "insert");
         req.put("entity", "student");
         req.put("name", student.getName());
+        req.put("gender", student.getGender());
         req.put("age", student.getAge());
+        req.put("status", student.getStatus() != null ? student.getStatus() : "在读");
         sendRequest(req);
     }
 
@@ -88,7 +100,9 @@ public class StudentRemoteDao implements StudentDao {
         req.put("entity", "student");
         req.put("id", student.getId());
         req.put("name", student.getName());
+        req.put("gender", student.getGender());
         req.put("age", student.getAge());
+        req.put("status", student.getStatus() != null ? student.getStatus() : "在读");
         sendRequest(req);
     }
 
@@ -132,7 +146,9 @@ public class StudentRemoteDao implements StudentDao {
         Student s = new Student();
         s.setId(obj.getInt("id"));
         s.setName(obj.getString("name"));
+        s.setGender(obj.optString("gender", "男"));
         s.setAge(obj.getInt("age"));
+        s.setStatus(obj.optString("status", "在读"));
         return s;
     }
 }

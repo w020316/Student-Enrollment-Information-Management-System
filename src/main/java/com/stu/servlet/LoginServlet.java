@@ -23,7 +23,7 @@ public class LoginServlet extends HttpServlet {
         if (USERNAME.equals(username) && PASSWORD.equals(password)) {
             HttpSession session = req.getSession();
             session.setAttribute("user", username);
-            resp.sendRedirect(req.getContextPath() + "/student/list");
+            resp.sendRedirect(req.getContextPath() + "/dashboard");
         } else {
             req.setAttribute("error", "用户名或密码错误");
             req.getRequestDispatcher("/loginForm.jsp").forward(req, resp);

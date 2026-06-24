@@ -36,7 +36,7 @@ public class TeacherDBDao implements TeacherDao {
     @Override
     public List<Teacher> findByPage(int page, int size) {
         List<Teacher> list = new ArrayList<>();
-        String sql = "SELECT * FROM teacher LIMIT ? OFFSET ?";
+        String sql = "SELECT * FROM teacher ORDER BY id ASC LIMIT ? OFFSET ?";
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -45,6 +45,29 @@ public class TeacherDBDao implements TeacherDao {
             pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, size);
             pstmt.setInt(2, (page - 1) * size);
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                list.add(mapRow(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DBConnection.close(conn, pstmt, rs);
+        }
+        return list;
+    }
+
+    @Override
+    public List<Teacher> findByName(String name) {
+        List<Teacher> list = new ArrayList<>();
+        String sql = "SELECT * FROM teacher WHERE name LIKE ? ORDER BY id ASC";
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            conn = DBConnection.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, "%" + name + "%");
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 list.add(mapRow(rs));
@@ -98,15 +121,17 @@ public class TeacherDBDao implements TeacherDao {
 
     @Override
     public void insert(Teacher teacher) {
-        String sql = "INSERT INTO teacher (name, age, salary) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO teacher (teacher_no, name, gender, age, salary) VALUES (?, ?, ?, ?, ?)";
         Connection conn = null;
         PreparedStatement pstmt = null;
         try {
             conn = DBConnection.getConnection();
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, teacher.getName());
-            pstmt.setObject(2, teacher.getAge());
-            pstmt.setDouble(3, teacher.getSalary());
+            pstmt.setString(1, teacher.getTeacherNo());
+            pstmt.setString(2, teacher.getName());
+            pstmt.setString(3, teacher.getGender());
+            pstmt.setObject(4, teacher.getAge());
+            pstmt.setDouble(5, teacher.getSalary());
             pstmt.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -117,16 +142,18 @@ public class TeacherDBDao implements TeacherDao {
 
     @Override
     public void update(Teacher teacher) {
-        String sql = "UPDATE teacher SET name = ?, age = ?, salary = ? WHERE id = ?";
+        String sql = "UPDATE teacher SET teacher_no = ?, name = ?, gender = ?, age = ?, salary = ? WHERE id = ?";
         Connection conn = null;
         PreparedStatement pstmt = null;
         try {
             conn = DBConnection.getConnection();
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, teacher.getName());
-            pstmt.setObject(2, teacher.getAge());
-            pstmt.setDouble(3, teacher.getSalary());
-            pstmt.setInt(4, teacher.getId());
+            pstmt.setString(1, teacher.getTeacherNo());
+            pstmt.setString(2, teacher.getName());
+            pstmt.setString(3, teacher.getGender());
+            pstmt.setObject(4, teacher.getAge());
+            pstmt.setDouble(5, teacher.getSalary());
+            pstmt.setInt(6, teacher.getId());
             pstmt.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -155,7 +182,9 @@ public class TeacherDBDao implements TeacherDao {
     private Teacher mapRow(ResultSet rs) throws Exception {
         Teacher t = new Teacher();
         t.setId(rs.getInt("id"));
+        t.setTeacherNo(rs.getString("teacher_no"));
         t.setName(rs.getString("name"));
+        t.setGender(rs.getString("gender"));
         t.setAge(rs.getInt("age"));
         t.setSalary(rs.getDouble("salary"));
         return t;

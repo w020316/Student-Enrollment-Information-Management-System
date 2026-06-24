@@ -4,10 +4,20 @@ import com.stu.service.StudentService;
 import com.stu.service.StudentServiceImpl;
 import com.stu.service.TeacherService;
 import com.stu.service.TeacherServiceImpl;
+import com.stu.service.CourseService;
+import com.stu.service.CourseServiceImpl;
+import com.stu.service.ScoreService;
+import com.stu.service.ScoreServiceImpl;
 
 public class ServiceFactory {
 
     private static ServiceFactory instance = new ServiceFactory();
+
+    // 缓存Service实例
+    private StudentService studentService;
+    private TeacherService teacherService;
+    private CourseService courseService;
+    private ScoreService scoreService;
 
     private ServiceFactory() {}
 
@@ -16,10 +26,30 @@ public class ServiceFactory {
     }
 
     public StudentService getStudentService() {
-        return new StudentServiceImpl();
+        if (studentService == null) {
+            studentService = new StudentServiceImpl();
+        }
+        return studentService;
     }
 
     public TeacherService getTeacherService() {
-        return new TeacherServiceImpl();
+        if (teacherService == null) {
+            teacherService = new TeacherServiceImpl();
+        }
+        return teacherService;
+    }
+
+    public CourseService getCourseService() {
+        if (courseService == null) {
+            courseService = new CourseServiceImpl();
+        }
+        return courseService;
+    }
+
+    public ScoreService getScoreService() {
+        if (scoreService == null) {
+            scoreService = new ScoreServiceImpl();
+        }
+        return scoreService;
     }
 }

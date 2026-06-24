@@ -4,21 +4,25 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.lang.reflect.Field" %>
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>通用信息列表</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>通用信息列表 - 清雅学苑</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
 </head>
 <body>
 <div class="navbar">
-    <h1>学生学籍信息管理系统</h1>
+    <h1>学籍管理</h1>
     <div class="nav-links">
+        <a href="${pageContext.request.contextPath}/dashboard">首页</a>
         <a href="${pageContext.request.contextPath}/student/list">学生管理</a>
         <a href="${pageContext.request.contextPath}/teacher/list">教师管理</a>
-        <a href="${pageContext.request.contextPath}/generic/list?entity=student">通用列表(学生)</a>
-        <a href="${pageContext.request.contextPath}/generic/list?entity=teacher">通用列表(教师)</a>
-        <a href="${pageContext.request.contextPath}/logout">退出登录</a>
+        <a href="${pageContext.request.contextPath}/course/list">课程管理</a>
+        <a href="${pageContext.request.contextPath}/logout">退出</a>
     </div>
 </div>
 
@@ -35,7 +39,7 @@
 
     <div class="table-container">
         <div class="table-header">
-            <h3><%= entityInfo != null ? entityInfo.getTableName() : "" %> 信息列表（注解驱动）</h3>
+            <h3><%= entityInfo != null ? entityInfo.getTableName() : "" %>（注解驱动）</h3>
         </div>
         <table>
             <thead>
@@ -78,7 +82,7 @@
                         }
                 %>
                     <td>
-                        <a href="<%= ctx %>/<%= entityName %>/list" class="btn btn-info btn-sm">返回专用列表</a>
+                        <a href="<%= ctx %>/<%= entityName %>/list" class="btn btn-info btn-sm">专用列表</a>
                     </td>
                 </tr>
             <%
@@ -87,7 +91,7 @@
                     int colSpan = entityInfo != null ? entityInfo.getColumns().size() + 1 : 1;
             %>
                 <tr>
-                    <td colspan="<%= colSpan %>" style="text-align:center; padding:30px; color:#999;">暂无数据</td>
+                    <td colspan="<%= colSpan %>" style="text-align:center; padding:40px; color:var(--ink-pale);">暂无数据</td>
                 </tr>
             <%
                 }
@@ -109,7 +113,9 @@
             <%
                 }
 
-                for (int i = 1; i <= totalPages; i++) {
+                int startPage = Math.max(1, currentPage - 2);
+                int endPage = Math.min(totalPages, currentPage + 2);
+                for (int i = startPage; i <= endPage; i++) {
                     if (i == currentPage) {
             %>
                 <span class="active"><%= i %></span>
@@ -133,7 +139,7 @@
             <%
                 }
             %>
-            <span style="margin-left:10px; color:#999; font-size:13px;">共 <%= totalCount %> 条</span>
+            <span style="margin-left:12px; color:var(--ink-pale); font-size:12px;">共 <%= totalCount %> 条</span>
         </div>
     </div>
 </div>

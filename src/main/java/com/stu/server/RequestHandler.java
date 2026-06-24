@@ -65,7 +65,9 @@ public class RequestHandler implements Runnable {
                         JSONObject obj = new JSONObject();
                         obj.put("id", s.getId());
                         obj.put("name", s.getName());
+                        obj.put("gender", s.getGender() != null ? s.getGender() : "男");
                         obj.put("age", s.getAge());
+                        obj.put("status", s.getStatus() != null ? s.getStatus() : "在读");
                         array.add(obj);
                     }
                     response.put("success", true);
@@ -81,7 +83,9 @@ public class RequestHandler implements Runnable {
                         JSONObject obj = new JSONObject();
                         obj.put("id", s.getId());
                         obj.put("name", s.getName());
+                        obj.put("gender", s.getGender() != null ? s.getGender() : "男");
                         obj.put("age", s.getAge());
+                        obj.put("status", s.getStatus() != null ? s.getStatus() : "在读");
                         array.add(obj);
                     }
                     response.put("success", true);
@@ -95,7 +99,9 @@ public class RequestHandler implements Runnable {
                         JSONObject obj = new JSONObject();
                         obj.put("id", s.getId());
                         obj.put("name", s.getName());
+                        obj.put("gender", s.getGender() != null ? s.getGender() : "男");
                         obj.put("age", s.getAge());
+                        obj.put("status", s.getStatus() != null ? s.getStatus() : "在读");
                         response.put("success", true);
                         response.put("data", obj);
                     } else {
@@ -112,7 +118,9 @@ public class RequestHandler implements Runnable {
                 case "insert": {
                     Student s = new Student();
                     s.setName(request.getString("name"));
+                    s.setGender(request.optString("gender", "男"));
                     s.setAge(request.getInt("age"));
+                    s.setStatus(request.optString("status", "在读"));
                     dao.insert(s);
                     response.put("success", true);
                     break;
@@ -121,7 +129,9 @@ public class RequestHandler implements Runnable {
                     Student s = new Student();
                     s.setId(request.getInt("id"));
                     s.setName(request.getString("name"));
+                    s.setGender(request.optString("gender", "男"));
                     s.setAge(request.getInt("age"));
+                    s.setStatus(request.optString("status", "在读"));
                     dao.update(s);
                     response.put("success", true);
                     break;

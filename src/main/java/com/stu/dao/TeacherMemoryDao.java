@@ -11,11 +11,11 @@ public class TeacherMemoryDao implements TeacherDao {
     private static final AtomicInteger idGenerator = new AtomicInteger(1);
 
     static {
-        data.add(new Teacher(idGenerator.getAndIncrement(), "刘老师", 35, 8000.0));
-        data.add(new Teacher(idGenerator.getAndIncrement(), "陈老师", 40, 9500.0));
-        data.add(new Teacher(idGenerator.getAndIncrement(), "杨老师", 38, 8800.0));
-        data.add(new Teacher(idGenerator.getAndIncrement(), "黄老师", 45, 10200.0));
-        data.add(new Teacher(idGenerator.getAndIncrement(), "林老师", 33, 7500.0));
+        data.add(new Teacher(idGenerator.getAndIncrement(), "T1001", "刘老师", "男", 35, 8000.0));
+        data.add(new Teacher(idGenerator.getAndIncrement(), "T1002", "陈老师", "男", 40, 9500.0));
+        data.add(new Teacher(idGenerator.getAndIncrement(), "T1003", "杨老师", "女", 38, 8800.0));
+        data.add(new Teacher(idGenerator.getAndIncrement(), "T1004", "黄老师", "男", 45, 10200.0));
+        data.add(new Teacher(idGenerator.getAndIncrement(), "T1005", "林老师", "女", 33, 7500.0));
     }
 
     @Override
@@ -29,6 +29,17 @@ public class TeacherMemoryDao implements TeacherDao {
         int end = Math.min(start + size, data.size());
         if (start >= data.size()) return new ArrayList<>();
         return new ArrayList<>(data.subList(start, end));
+    }
+
+    @Override
+    public List<Teacher> findByName(String name) {
+        List<Teacher> result = new ArrayList<>();
+        for (Teacher t : data) {
+            if (t.getName() != null && t.getName().contains(name)) {
+                result.add(t);
+            }
+        }
+        return result;
     }
 
     @Override

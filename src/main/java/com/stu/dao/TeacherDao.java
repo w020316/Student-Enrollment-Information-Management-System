@@ -6,6 +6,7 @@ import java.util.List;
 public interface TeacherDao {
     List<Teacher> findAll();
     List<Teacher> findByPage(int page, int size);
+    List<Teacher> findByName(String name);
     Teacher findById(Integer id);
     int count();
     void insert(Teacher teacher);

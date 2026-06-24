@@ -11,14 +11,14 @@ public class StudentMemoryDao implements StudentDao {
     private static final AtomicInteger idGenerator = new AtomicInteger(1);
 
     static {
-        data.add(new Student(idGenerator.getAndIncrement(), "张三", 20));
-        data.add(new Student(idGenerator.getAndIncrement(), "李四", 21));
-        data.add(new Student(idGenerator.getAndIncrement(), "王五", 22));
-        data.add(new Student(idGenerator.getAndIncrement(), "赵六", 20));
-        data.add(new Student(idGenerator.getAndIncrement(), "钱七", 23));
-        data.add(new Student(idGenerator.getAndIncrement(), "孙八", 19));
-        data.add(new Student(idGenerator.getAndIncrement(), "周九", 21));
-        data.add(new Student(idGenerator.getAndIncrement(), "吴十", 22));
+        data.add(new Student(idGenerator.getAndIncrement(), "2024001", "张三", "男", 20, "在读"));
+        data.add(new Student(idGenerator.getAndIncrement(), "2024002", "李四", "男", 21, "在读"));
+        data.add(new Student(idGenerator.getAndIncrement(), "2024003", "王五", "男", 22, "休学"));
+        data.add(new Student(idGenerator.getAndIncrement(), "2024004", "赵六", "男", 20, "在读"));
+        data.add(new Student(idGenerator.getAndIncrement(), "2024005", "钱七", "男", 23, "毕业"));
+        data.add(new Student(idGenerator.getAndIncrement(), "2024006", "孙八", "男", 19, "在读"));
+        data.add(new Student(idGenerator.getAndIncrement(), "2024007", "周九", "女", 21, "退学"));
+        data.add(new Student(idGenerator.getAndIncrement(), "2024008", "吴十", "女", 22, "在读"));
     }
 
     @Override
@@ -32,6 +32,17 @@ public class StudentMemoryDao implements StudentDao {
         int end = Math.min(start + size, data.size());
         if (start >= data.size()) return new ArrayList<>();
         return new ArrayList<>(data.subList(start, end));
+    }
+
+    @Override
+    public List<Student> findByName(String name) {
+        List<Student> result = new ArrayList<>();
+        for (Student s : data) {
+            if (s.getName() != null && s.getName().contains(name)) {
+                result.add(s);
+            }
+        }
+        return result;
     }
 
     @Override

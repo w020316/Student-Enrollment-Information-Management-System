@@ -59,6 +59,29 @@ public class StudentDBReflectDao implements StudentDao {
     }
 
     @Override
+    public List<Student> findByName(String name) {
+        List<Student> list = new ArrayList<>();
+        String sql = "SELECT * FROM student WHERE name LIKE ? ORDER BY id ASC";
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            conn = DBConnection.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, "%" + name + "%");
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                list.add(mapRow(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DBConnection.close(conn, pstmt, rs);
+        }
+        return list;
+    }
+
+    @Override
     public Student findById(Integer id) {
         String sql = DBReflectUtil.generateSelectByIdSQL(Student.class);
         Connection conn = null;
@@ -158,7 +181,9 @@ public class StudentDBReflectDao implements StudentDao {
         Student s = new Student();
         s.setId(rs.getInt("id"));
         s.setName(rs.getString("name"));
+        s.setGender(rs.getString("gender"));
         s.setAge(rs.getInt("age"));
+        s.setStatus(rs.getString("status"));
         return s;
     }
 }
